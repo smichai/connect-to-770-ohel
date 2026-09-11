@@ -130,17 +130,6 @@ export default function App() {
     }
   };
 
-  const getWhatsAppShareUrl = () => {
-    const text = encodeURIComponent(
-      `🍯 *אוהל להתחבר - ערב ראש השנה*\n` +
-      `רשמתי את שמי ושם משפחתי להזכרה על הציון הקדוש של הרבי מליובאוויטש בערב ראש השנה!\n\n` +
-      `גם אתם יכולים להעביר שמות בחינם לברכה והצלחה בקישור:\n` +
-      `${window.location.origin}\n\n` +
-      `*כתיבה וחתימה טובה לשנה טובה ומתוקה!* 🍯`
-    );
-    return `https://wa.me/?text=${text}`;
-  };
-
   if (currentView === 'admin') {
     return (
       <AdminDashboard 
@@ -299,7 +288,7 @@ export default function App() {
               </div>
             ))}
 
-            {/* Add Name Button - Elegant White Text with Underline, No Border Box */}
+            {/* Add Name Button - Elegant White Text with Underline */}
             <button
               type="button"
               onClick={handleAddNameRow}
@@ -366,46 +355,38 @@ export default function App() {
 
       </div>
 
-      {/* Confirmation Modal */}
+      {/* Confirmation Modal - Redesigned Gold & Black Theme Without WhatsApp Share Button */}
       {showSuccessModal && submittedData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" dir="rtl">
-          <div className="bg-[#121620] border border-[#E5B54F]/40 max-w-sm w-full rounded-3xl p-6 text-center space-y-4 shadow-2xl">
+          <div className="bg-[#0b0c10] border border-[#E5B54F]/40 max-w-sm w-full rounded-3xl p-6 text-center space-y-4 shadow-2xl">
             
-            <div className="w-12 h-12 rounded-full bg-[#E5B54F]/20 text-[#E5B54F] mx-auto flex items-center justify-center text-xl font-bold">
+            <div className="w-14 h-14 rounded-full bg-[#E5B54F]/15 border border-[#E5B54F]/40 text-[#E5B54F] mx-auto flex items-center justify-center text-2xl font-black drop-shadow-lg">
               ✓
             </div>
 
-            <div className="space-y-1">
-              <span className="text-[10px] font-mono text-[#E5B54F]">אישור מס׳ {submittedData.id}</span>
-              <h3 className="font-bold text-lg text-white">
-                השמות נרשמו בהצלחה ב-Database
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-mono text-[#E5B54F]/90 font-bold">אישור מס׳ {submittedData.id}</span>
+              <h3 className="font-heading font-extrabold text-xl text-white">
+                השמות נקלטו בהצלחה
               </h3>
-              <p className="text-xs text-slate-300">
-                צוות ערוץ <strong className="text-[#E5B54F]">להתחבר ל-770</strong> ידאג להזכיר את השמות על הציון הקדוש.
+              <p className="text-xs text-slate-300 leading-relaxed">
+                צוות ערוץ <strong className="text-[#E5B54F]">להתחבר ל-770</strong> ידאג להזכיר את השמות על הציון הקדוש בערב ראש השנה.
               </p>
             </div>
 
-            <div className="bg-black/60 rounded-xl p-3 text-right space-y-1 text-xs border border-slate-800">
+            <div className="bg-black/70 rounded-2xl p-3.5 text-right space-y-1.5 text-xs border border-slate-800">
               {submittedData.names.map((n, i) => (
-                <div key={i} className="text-slate-200">
-                  • <strong>{n.name}</strong> ({n.motherName}) {n.requestType ? <span className="text-[10px] text-amber-200/80">[{n.requestType}]</span> : ''}
+                <div key={i} className="text-slate-200 flex items-center justify-between">
+                  <div>• <strong>{n.name}</strong> <span className="text-amber-200/80">({n.motherName})</span></div>
+                  {n.requestType ? <span className="text-[10px] bg-[#E5B54F]/10 text-[#E5B54F] px-2 py-0.5 rounded border border-[#E5B54F]/20">{n.requestType}</span> : null}
                 </div>
               ))}
             </div>
 
-            <div className="space-y-2 pt-2">
-              <a
-                href={getWhatsAppShareUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition-colors"
-              >
-                שתף ב-WhatsApp
-              </a>
-
+            <div className="pt-2">
               <button
                 onClick={() => setShowSuccessModal(false)}
-                className="w-full py-2 bg-slate-800 text-slate-400 text-xs rounded-xl"
+                className="w-full py-3 bg-[#E5B54F] hover:bg-[#d4a33d] text-slate-950 font-black text-sm rounded-xl shadow-lg transition-all"
               >
                 סגור
               </button>
