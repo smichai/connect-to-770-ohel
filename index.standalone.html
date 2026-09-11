@@ -108,7 +108,7 @@
 
       const exportToCSV = () => {
         if (filteredNames.length === 0) return alert('אין שמות לייצוא');
-        const headers = ['תאריך', 'שם מלא', 'שם האם', 'סוג הבקשה / פ״ן', 'סטטוס'];
+        const headers = ['תאריך', 'שם מלא', 'שם האם', 'סוג הבקשה / פ״נ', 'סטטוס'];
         const rows = filteredNames.map(i => [
           i.formattedDate || '',
           i.fullName || '',
@@ -137,7 +137,7 @@
             <h2 style="text-align:center;">ב"ה | רשימת שמות לאוהל הקדוש 770</h2>
             <p style="text-align:center;">סה"כ שמות: ${filteredNames.length} | הדפסה: ${new Date().toLocaleString('he-IL')}</p>
             <table>
-              <thead><tr><th>#</th><th>שם מלא + שם האם</th><th>בקשה / פ״ן</th><th>תאריך</th></tr></thead>
+              <thead><tr><th>#</th><th>שם מלא + שם האם</th><th>בקשה / פ״נ</th><th>תאריך</th></tr></thead>
               <tbody>
                 ${filteredNames.map((n, i) => `<tr><td>${i+1}</td><td><b>${n.fullName}</b> בת/בן <b>${n.motherName}</b></td><td>${n.requestType || n.note || '-'}</td><td>${n.formattedDate || ''}</td></tr>`).join('')}
               </tbody>
@@ -206,7 +206,7 @@
                   <th className="p-3">#</th>
                   <th className="p-3">שם מלא</th>
                   <th className="p-3">שם האם</th>
-                  <th className="p-3">בקשה / פ״ן</th>
+                  <th className="p-3">בקשה / פ״נ</th>
                   <th className="p-3">תאריך</th>
                   <th className="p-3">סטטוס</th>
                   <th className="p-3 text-center">פעולות</th>
@@ -384,7 +384,7 @@
                   {/* Free Text Input for Request Type */}
                   <input 
                     type="text" 
-                    placeholder="בקשת ברכה מפורטת / פ״ן / סוג הבקשה..." 
+                    placeholder="בקשת ברכה מפורטת / פ״נ / סוג הבקשה..." 
                     value={item.requestType} 
                     onChange={e => handleNameChange(item.id, 'requestType', e.target.value)} 
                     className="w-full border border-white/15 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-amber-200 placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner" 
@@ -398,7 +398,7 @@
               </button>
 
               <button type="submit" disabled={isSubmitting} className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#F3C86B] via-[#E5B54F] to-[#C99632] hover:brightness-110 active:scale-[0.99] disabled:opacity-50 text-slate-950 font-black text-lg sm:text-xl shadow-[0_10px_30px_rgba(229,181,79,0.3)] hover:shadow-[0_12px_40px_rgba(229,181,79,0.45)] transition-all cursor-pointer mt-2 text-center relative overflow-hidden">
-                {isSubmitting ? 'שומר...' : 'שלח פ״ן לאוהל הקדוש 🍯'}
+                {isSubmitting ? 'שומר...' : 'שלח פ״נ לאוהל הקדוש 🍯'}
               </button>
             </form>
 
@@ -568,7 +568,7 @@
                 {/* Free Text Input for Request Type */}
                 <input 
                   type="text" 
-                  placeholder="בקשת ברכה מפורטת / פ״ן / סוג הבקשה..." 
+                  placeholder="בקשת ברכה מפורטת / פ״נ / סוג הבקשה..." 
                   value={item.requestType} 
                   onChange={e => handleNameChange(item.id, 'requestType', e.target.value)} 
                   className="w-full bg-black/50 border border-white/10 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-amber-200 placeholder-slate-400 text-center focus:outline-none backdrop-blur-md transition-all shadow-inner" 
@@ -581,7 +581,7 @@
             </button>
 
             <button type="submit" disabled={isSubmitting} className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#F3C86B] via-[#E5B54F] to-[#C99632] hover:brightness-110 active:scale-[0.99] disabled:opacity-50 text-slate-950 font-black text-lg sm:text-xl shadow-[0_10px_30px_rgba(229,181,79,0.3)] hover:shadow-[0_12px_40px_rgba(229,181,79,0.45)] transition-all cursor-pointer mt-2 text-center relative overflow-hidden">
-              {isSubmitting ? 'שומר...' : 'שלח פ״ן לאוהל הקדוש 🍯'}
+              {isSubmitting ? 'שומר...' : 'שלח פ״נ לאוהל הקדוש 🍯'}
             </button>
           </form>
 

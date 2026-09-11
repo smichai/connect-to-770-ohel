@@ -255,7 +255,7 @@ export default function App() {
                 <div className="pt-0.5 w-full">
                   <input
                     type="text"
-                    placeholder="בקשת ברכה מפורטת / פ״ן / סוג הבקשה..."
+                    placeholder="בקשת ברכה מפורטת / פ״נ / סוג הבקשה..."
                     value={item.requestType}
                     onChange={(e) => handleNameChange(item.id, 'requestType', e.target.value)}
                     className="w-full border border-white/15 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-amber-200 placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner"
@@ -283,7 +283,7 @@ export default function App() {
             disabled={isSubmitting}
             className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#F3C86B] via-[#E5B54F] to-[#C99632] hover:brightness-110 active:scale-[0.99] disabled:opacity-50 text-slate-950 font-black text-lg sm:text-xl shadow-[0_10px_30px_rgba(229,181,79,0.3)] hover:shadow-[0_12px_40px_rgba(229,181,79,0.45)] transition-all cursor-pointer mt-2 text-center relative overflow-hidden"
           >
-            {isSubmitting ? 'שומר...' : 'שלח פ״ן לאוהל הקדוש 🍯'}
+            {isSubmitting ? 'שומר...' : 'שלח פ״נ לאוהל הקדוש 🍯'}
           </button>
 
         </form>
