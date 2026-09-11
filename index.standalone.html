@@ -106,13 +106,12 @@
 
       const exportToCSV = () => {
         if (filteredNames.length === 0) return alert('אין שמות לייצוא');
-        const headers = ['תאריך', 'שם מלא', 'שם האם', 'סוג הבקשה', 'הערות', 'סטטוס'];
+        const headers = ['תאריך', 'שם מלא', 'שם האם', 'סוג הבקשה / פ״ן', 'סטטוס'];
         const rows = filteredNames.map(i => [
           i.formattedDate || '',
           i.fullName || '',
           i.motherName || '',
-          i.requestType || '',
-          `"${(i.note || '').replace(/"/g, '""')}"`,
+          `"${(i.requestType || i.note || '').replace(/"/g, '""')}"`,
           i.status === 'processed' ? 'נקרא' : 'חדש'
         ]);
         const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
@@ -136,9 +135,9 @@
             <h2 style="text-align:center;">ב"ה | רשימת שמות לאוהל הקדוש 770</h2>
             <p style="text-align:center;">סה"כ שמות: ${filteredNames.length} | הדפסה: ${new Date().toLocaleString('he-IL')}</p>
             <table>
-              <thead><tr><th>#</th><th>שם מלא + שם האם</th><th>בקשה</th><th>הערות</th><th>תאריך</th></tr></thead>
+              <thead><tr><th>#</th><th>שם מלא + שם האם</th><th>בקשה / פ״ן</th><th>תאריך</th></tr></thead>
               <tbody>
-                ${filteredNames.map((n, i) => `<tr><td>${i+1}</td><td><b>${n.fullName}</b> בת/בן <b>${n.motherName}</b></td><td>${n.requestType || 'כללי'}</td><td>${n.note || '-'}</td><td>${n.formattedDate || ''}</td></tr>`).join('')}
+                ${filteredNames.map((n, i) => `<tr><td>${i+1}</td><td><b>${n.fullName}</b> בת/בן <b>${n.motherName}</b></td><td>${n.requestType || n.note || '-'}</td><td>${n.formattedDate || ''}</td></tr>`).join('')}
               </tbody>
             </table>
             <script>window.onload=function(){window.print();}</script>
@@ -150,9 +149,8 @@
 
       const filteredNames = names.filter(i => {
         const matchSearch = (i.fullName || '').includes(searchQuery) || (i.motherName || '').includes(searchQuery) || (i.note || '').includes(searchQuery) || (i.requestType || '').includes(searchQuery);
-        const matchCat = selectedCategory === 'all' || i.requestType === selectedCategory;
         const matchStat = statusFilter === 'all' || (statusFilter === 'new' && i.status !== 'processed') || (statusFilter === 'processed' && i.status === 'processed');
-        return matchSearch && matchCat && matchStat;
+        return matchSearch && matchStat;
       });
 
       if (!isAuthenticated) {
@@ -206,8 +204,7 @@
                   <th className="p-3">#</th>
                   <th className="p-3">שם מלא</th>
                   <th className="p-3">שם האם</th>
-                  <th className="p-3">סוג בקשה</th>
-                  <th className="p-3">הערה</th>
+                  <th className="p-3">בקשה / פ״ן</th>
                   <th className="p-3">תאריך</th>
                   <th className="p-3">סטטוס</th>
                   <th className="p-3 text-center">פעולות</th>
@@ -217,10 +214,9 @@
                 {filteredNames.map((n, idx) => (
                   <tr key={n.id} className="border-b border-slate-800/50 hover:bg-slate-800/30">
                     <td className="p-3 text-slate-500">{idx + 1}</td>
-                    <td className="p-3 font-bold text-white">{n.fullName}</td>
+                    <td className="p-3 font-bold text-[#E5B54F]">{n.fullName}</td>
                     <td className="p-3 text-amber-200">{n.motherName}</td>
-                    <td className="p-3"><span className="bg-amber-500/10 text-amber-300 px-2 py-0.5 rounded border border-amber-500/20">{n.requestType || 'כללי'}</span></td>
-                    <td className="p-3 text-slate-300">{n.note || '-'}</td>
+                    <td className="p-3 text-slate-200">{n.requestType || n.note || '-'}</td>
                     <td className="p-3 text-slate-400">{n.formattedDate || '-'}</td>
                     <td className="p-3">{n.status === 'processed' ? '✅ נקרא' : '🕒 חדש'}</td>
                     <td className="p-3 text-center flex justify-center gap-2">
@@ -239,7 +235,6 @@
     function App() {
       const [currentView, setCurrentView] = useState(() => window.location.hash === '#admin' ? 'admin' : 'landing');
       const [namesList, setNamesList] = useState([{ id: '1', name: '', motherName: '', requestType: '' }]);
-      const [personalRequest, setPersonalRequest] = useState('');
       const [submittedData, setSubmittedData] = useState(null);
       const [showSuccessModal, setShowSuccessModal] = useState(false);
       const [isSubmitting, setIsSubmitting] = useState(false);
@@ -297,7 +292,7 @@
               fullName: item.name.trim(),
               motherName: item.motherName.trim(),
               requestType: item.requestType.trim() || 'ברכה ואיחול',
-              note: personalRequest.trim(),
+              note: item.requestType.trim(),
               status: 'new',
               createdAt: firebase.firestore.FieldValue.serverTimestamp(),
               formattedDate: new Date().toLocaleString('he-IL')
@@ -316,7 +311,6 @@
           }
 
           setNamesList([{ id: '1', name: '', motherName: '', requestType: '' }]);
-          setPersonalRequest('');
 
         } catch (err) {
           console.error(err);
@@ -397,7 +391,7 @@
                 {/* Free Text Input for Request Type */}
                 <input 
                   type="text" 
-                  placeholder="סוג בקשה (לדוגמה: רפואה / זיווג / פרנסה / ברכה...)" 
+                  placeholder="בקשת ברכה מפורטת / פ״ן / סוג הבקשה..." 
                   value={item.requestType} 
                   onChange={e => handleNameChange(item.id, 'requestType', e.target.value)} 
                   className="w-full bg-black/50 border border-slate-700/80 focus:border-[#E5B54F] text-xs sm:text-sm text-amber-200 placeholder-slate-400 text-center rounded-xl p-2.5 outline-none" 
@@ -405,13 +399,11 @@
               </div>
             ))}
 
-            <button type="button" onClick={handleAddNameRow} className="text-xs text-[#E5B54F] border border-amber-500/30 bg-black/40 px-3 py-1 rounded-full mx-auto">
-              + הוסף שם נוסף
+            <button type="button" onClick={handleAddNameRow} className="text-white hover:text-[#E5B54F] underline underline-offset-4 decoration-[#E5B54F]/70 font-medium text-xs sm:text-sm transition-colors cursor-pointer bg-transparent border-none py-1.5 px-2 flex items-center justify-center gap-1.5 mx-auto">
+              + הוסף שם נוסף (בן/בת משפחה)
             </button>
 
-            <textarea rows={2} placeholder="בקשת ברכה מפורטת / פ״ן (אופציונלי)" value={personalRequest} onChange={e => setPersonalRequest(e.target.value)} className="w-full bg-black/40 border border-slate-700 rounded-xl p-3 text-sm text-white text-center" />
-
-            <button type="submit" disabled={isSubmitting} className="w-full py-4 rounded-xl bg-[#E5B54F] hover:bg-[#d4a33d] text-black font-black text-lg shadow-xl text-center">
+            <button type="submit" disabled={isSubmitting} className="w-full py-4 rounded-xl bg-[#E5B54F] hover:bg-[#d4a33d] text-black font-black text-lg shadow-xl text-center mt-2">
               {isSubmitting ? 'שומר ב-Firebase...' : 'שלח שמות לאוהל הקדוש 🍯'}
             </button>
           </form>

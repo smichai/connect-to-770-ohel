@@ -19,10 +19,6 @@ export default function App() {
     { id: '1', name: '', motherName: '', requestType: '' }
   ]);
 
-  const [submitterName, setSubmitterName] = useState('');
-  const [submitterPhone, setSubmitterPhone] = useState('');
-  const [personalRequest, setPersonalRequest] = useState('');
-
   const [submittedData, setSubmittedData] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -102,15 +98,12 @@ export default function App() {
           fullName: item.name.trim(),
           motherName: item.motherName.trim(),
           requestType: item.requestType.trim() || 'ברכה ואיחול',
-          note: personalRequest.trim()
+          note: item.requestType.trim()
         });
       }
 
       const newSubmission = {
         id: `770-${Math.floor(1000 + Math.random() * 9000)}`,
-        submitterName: submitterName.trim() || validNames[0].name,
-        submitterPhone: submitterPhone.trim(),
-        personalRequest: personalRequest.trim(),
         names: validNames,
         date: new Date().toISOString()
       };
@@ -128,7 +121,6 @@ export default function App() {
       }
 
       setNamesList([{ id: '1', name: '', motherName: '', requestType: '' }]);
-      setPersonalRequest('');
 
     } catch (err) {
       console.error("Submission Error:", err);
@@ -176,7 +168,7 @@ export default function App() {
       {/* Main Completely Centered Layout */}
       <div className="relative z-10 max-w-xl w-full text-center space-y-6 py-8 px-2 mx-auto flex flex-col items-center justify-center my-auto">
         
-        {/* Floating Bottom Right Mechanical Split-Flap Clock - Shifted Slightly Left & Centered Header */}
+        {/* Floating Bottom Right Mechanical Split-Flap Clock - Frameless */}
         <div className="fixed bottom-4 right-8 sm:right-12 z-40 flex flex-col items-center text-center drop-shadow-2xl">
           <div className="inline-flex items-center justify-center gap-1.5 text-[11px] sm:text-xs text-amber-200/90 font-semibold mb-1.5 drop-shadow-md text-center mx-auto">
             <Clock size={14} className="text-[#E5B54F]" />
@@ -293,11 +285,11 @@ export default function App() {
                   />
                 </div>
 
-                {/* Free Text Input for Request Type */}
+                {/* Free Text Input for Request / Blessing */}
                 <div className="pt-1 w-full">
                   <input
                     type="text"
-                    placeholder="סוג בקשה (לדוגמה: רפואה / זיווג / פרנסה / ברכה...)"
+                    placeholder="בקשת ברכה מפורטת / פ״ן / סוג הבקשה..."
                     value={item.requestType}
                     onChange={(e) => handleNameChange(item.id, 'requestType', e.target.value)}
                     className="w-full bg-black/50 border border-slate-700/80 focus:border-[#E5B54F] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-amber-200 placeholder-slate-400 text-center focus:outline-none backdrop-blur-md transition-all"
@@ -307,30 +299,21 @@ export default function App() {
               </div>
             ))}
 
+            {/* Add Name Button - Elegant White Text with Underline, No Border Box */}
             <button
               type="button"
               onClick={handleAddNameRow}
-              className="text-[11px] sm:text-xs text-[#E5B54F] hover:underline flex items-center justify-center gap-1 mx-auto font-medium py-1.5 px-4 rounded-full border border-amber-500/30 bg-black/40 backdrop-blur-md shadow-sm transition-all hover:bg-amber-500/10"
+              className="text-white hover:text-[#E5B54F] underline underline-offset-4 decoration-[#E5B54F]/70 font-medium text-xs sm:text-sm transition-colors cursor-pointer bg-transparent border-none py-1.5 px-2 flex items-center justify-center gap-1.5 mx-auto"
             >
-              <Plus size={13} />
+              <Plus size={15} className="text-[#E5B54F]" />
               <span>הוסף שם נוסף (בן/בת משפחה)</span>
             </button>
-          </div>
-
-          <div className="w-full space-y-3.5 pt-1 text-center">
-            <textarea
-              rows={2}
-              placeholder="בקשת ברכה מפורטת / פ״ן (אופציונלי)"
-              value={personalRequest}
-              onChange={(e) => setPersonalRequest(e.target.value)}
-              className="w-full bg-black/40 border border-slate-700/80 focus:border-[#E5B54F] rounded-xl p-4 text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none resize-none text-center backdrop-blur-md transition-all shadow-lg"
-            />
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-4 rounded-xl bg-[#E5B54F] hover:bg-[#d4a33d] disabled:opacity-50 text-slate-950 font-black text-lg sm:text-xl shadow-2xl transition-all cursor-pointer mt-3 text-center"
+            className="w-full py-4 rounded-xl bg-[#E5B54F] hover:bg-[#d4a33d] disabled:opacity-50 text-slate-950 font-black text-lg sm:text-xl shadow-2xl transition-all cursor-pointer mt-2 text-center"
           >
             {isSubmitting ? 'שומר ב-Firebase...' : 'שלח שמות לאוהל הקדוש 🍯'}
           </button>
@@ -405,7 +388,7 @@ export default function App() {
             <div className="bg-black/60 rounded-xl p-3 text-right space-y-1 text-xs border border-slate-800">
               {submittedData.names.map((n, i) => (
                 <div key={i} className="text-slate-200">
-                  • <strong>{n.name}</strong> ({n.motherName}) <span className="text-[10px] text-amber-200/70">[{n.requestType || 'ברכה'}]</span>
+                  • <strong>{n.name}</strong> ({n.motherName}) {n.requestType ? <span className="text-[10px] text-amber-200/80">[{n.requestType}]</span> : ''}
                 </div>
               ))}
             </div>
@@ -422,7 +405,7 @@ export default function App() {
 
               <button
                 onClick={() => setShowSuccessModal(false)}
-                className="w-full py-2 bg-slate-800 text-[#E5B54F] text-xs rounded-xl"
+                className="w-full py-2 bg-slate-800 text-slate-400 text-xs rounded-xl"
               >
                 סגור
               </button>
