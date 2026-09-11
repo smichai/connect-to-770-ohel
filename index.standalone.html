@@ -332,16 +332,16 @@
         <>
           {/* Main Completely Centered Layout wrapped in Apple Liquid Glass Card */}
           <div 
-            className="relative z-10 max-w-2xl w-full text-center space-y-6 py-8 px-4 sm:px-8 mx-auto flex flex-col items-center justify-center my-auto border border-white/25 rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.6)] relative overflow-hidden transition-all"
+            className="relative z-10 max-w-2xl w-full text-center space-y-6 py-8 px-4 sm:px-8 mx-auto flex flex-col items-center justify-center my-auto border border-white/20 rounded-3xl shadow-2xl relative overflow-hidden transition-all"
             style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.08)',
-              backdropFilter: 'blur(32px)',
-              WebkitBackdropFilter: 'blur(32px)',
+              backgroundColor: 'rgba(255, 255, 255, 0.04)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
             }}
           >
             
             {/* Apple Glass Highlight Top Edge */}
-            <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
 
             {/* Main Header - Single Line */}
             <div className="w-full text-center space-y-1 mx-auto flex flex-col items-center justify-center pt-2">
@@ -363,11 +363,11 @@
               {namesList.map((item, index) => (
                 <div 
                   key={item.id} 
-                  className="w-full space-y-3 text-center relative border border-white/20 p-4 rounded-2xl shadow-lg transition-all duration-300 hover:border-[#E5B54F]/40"
+                  className="w-full space-y-3 text-center relative border border-white/15 p-4 rounded-2xl shadow-lg transition-all duration-300 hover:border-[#E5B54F]/40"
                   style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.07)',
-                    backdropFilter: 'blur(20px)',
-                    WebkitBackdropFilter: 'blur(20px)'
+                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)'
                   }}
                 >
                   <div className="flex justify-between text-xs sm:text-sm px-1 font-bold text-[#E5B54F]">
@@ -377,8 +377,8 @@
                     )}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-                    <input type="text" required placeholder="שם פרטי ומשפחה" value={item.name} onChange={e => handleNameChange(item.id, 'name', e.target.value)} className="w-full border border-white/25 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
-                    <input type="text" required placeholder="שם האם (בן/בת)" value={item.motherName} onChange={e => handleNameChange(item.id, 'motherName', e.target.value)} className="w-full border border-white/25 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
+                    <input type="text" required placeholder="שם פרטי ומשפחה" value={item.name} onChange={e => handleNameChange(item.id, 'name', e.target.value)} className="w-full border border-white/20 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner" style={{ backgroundColor: 'rgba(255, 255, 255, 0.04)' }} />
+                    <input type="text" required placeholder="שם האם (בן/בת)" value={item.motherName} onChange={e => handleNameChange(item.id, 'motherName', e.target.value)} className="w-full border border-white/20 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner" style={{ backgroundColor: 'rgba(255, 255, 255, 0.04)' }} />
                   </div>
                   
                   {/* Free Text Input for Request Type */}
@@ -387,8 +387,8 @@
                     placeholder="בקשת ברכה מפורטת / פ״ן / סוג הבקשה..." 
                     value={item.requestType} 
                     onChange={e => handleNameChange(item.id, 'requestType', e.target.value)} 
-                    className="w-full border border-white/20 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-amber-200 placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner" 
-                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.07)' }}
+                    className="w-full border border-white/15 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-amber-200 placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner" 
+                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)' }}
                   />
                 </div>
               ))}
@@ -402,7 +402,7 @@
               </button>
             </form>
 
-            <a href="https://whatsapp.com/channel/0029VayCzKY9mrGXUlgKji0m" target="_blank" rel="noopener noreferrer" className="max-w-sm w-full mx-auto p-3.5 rounded-2xl border border-emerald-400/30 hover:border-emerald-400/60 flex items-center justify-between gap-3 text-right transition-all duration-300 group shadow-lg mt-1" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+            <a href="https://whatsapp.com/channel/0029VayCzKY9mrGXUlgKji0m" target="_blank" rel="noopener noreferrer" className="max-w-sm w-full mx-auto p-3.5 rounded-2xl border border-emerald-400/30 hover:border-emerald-400/60 flex items-center justify-between gap-3 text-right transition-all duration-300 group shadow-lg mt-1" style={{ backgroundColor: 'rgba(16, 185, 129, 0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-base font-bold flex-shrink-0 group-hover:scale-110 transition-transform">💬</div>
                 <div className="text-right">
@@ -452,16 +452,19 @@
           {/* Floating Bottom Right Apple Watch / VisionOS Translucent Glass Clock */}
           {isClockVisible && !isClockMinimized && (
             <div 
-              className="flex flex-col items-center text-center border border-white/25 p-3 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.6)] hover:border-[#E5B54F]/40 transition-all duration-300 max-w-[260px] w-full relative overflow-hidden"
+              className="flex flex-col items-center text-center border border-white/20 p-3 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.6)] hover:border-[#E5B54F]/40 transition-all duration-300 relative overflow-hidden"
               style={{
                 position: 'fixed',
                 bottom: '16px',
                 right: '16px',
                 left: 'auto',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(30px)',
-                WebkitBackdropFilter: 'blur(30px)',
-                zIndex: 9999
+                width: '260px',
+                maxWidth: 'calc(100vw - 32px)',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                zIndex: 99999,
+                margin: 0
               }}
             >
               <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />

@@ -152,28 +152,28 @@ export default function App() {
   return (
     <div className="min-h-screen w-full bg-[#050505] text-slate-100 flex flex-col items-center justify-center p-4 sm:p-6 relative font-sans selection:bg-[#E5B54F] selection:text-black overflow-x-hidden" dir="rtl">
       
-      {/* Background Image of Ohel Queue - Bright clear backdrop for frosted glass effect */}
+      {/* Background Image of Ohel Queue - Crisp bright backdrop for ultra-clear glass */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <img 
           src={ohelImage} 
           alt="תור האוהל הקדוש" 
-          className="w-full h-full object-cover object-center opacity-70 filter contrast-105 brightness-90 scale-105" 
+          className="w-full h-full object-cover object-center opacity-90 filter brightness-95 scale-105" 
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
+        <div className="absolute inset-0 bg-black/15" />
       </div>
 
       {/* Main Completely Centered Layout wrapped in iOS 18 Apple Liquid Glass Dock Card */}
       <div 
-        className="relative z-10 max-w-2xl w-full text-center space-y-6 py-8 px-4 sm:px-8 mx-auto flex flex-col items-center justify-center my-auto border border-white/25 rounded-[32px] shadow-[0_25px_70px_rgba(0,0,0,0.6)] relative overflow-hidden transition-all"
+        className="relative z-10 max-w-2xl w-full text-center space-y-6 py-8 px-4 sm:px-8 mx-auto flex flex-col items-center justify-center my-auto border border-white/20 rounded-[32px] shadow-2xl relative overflow-hidden transition-all"
         style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.08)',
-          backdropFilter: 'blur(32px)',
-          WebkitBackdropFilter: 'blur(32px)',
+          backgroundColor: 'rgba(255, 255, 255, 0.04)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
         }}
       >
         
         {/* Apple Glass Sheen Highlight Edge */}
-        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
 
         {/* Main Header - Always Forced on ONE Single Line */}
         <div className="w-full text-center space-y-1 mx-auto flex flex-col items-center justify-center pt-2">
@@ -199,11 +199,11 @@ export default function App() {
             {namesList.map((item, index) => (
               <div 
                 key={item.id} 
-                className="w-full space-y-3 text-center relative border border-white/20 p-4 rounded-2xl shadow-lg transition-all duration-300 hover:border-[#E5B54F]/40"
+                className="w-full space-y-3 text-center relative border border-white/15 p-4 rounded-2xl shadow-lg transition-all duration-300 hover:border-[#E5B54F]/40"
                 style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.07)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)'
+                  backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)'
                 }}
               >
                 <div className="flex items-center justify-between text-xs sm:text-sm px-1 font-bold text-[#E5B54F]">
@@ -226,8 +226,8 @@ export default function App() {
                     placeholder="שם פרטי ומשפחה"
                     value={item.name}
                     onChange={(e) => handleNameChange(item.id, 'name', e.target.value)}
-                    className="w-full border border-white/25 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner"
-                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+                    className="w-full border border-white/20 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner"
+                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.04)' }}
                   />
                   <input
                     type="text"
@@ -235,8 +235,8 @@ export default function App() {
                     placeholder="שם האם (בן/בת)"
                     value={item.motherName}
                     onChange={(e) => handleNameChange(item.id, 'motherName', e.target.value)}
-                    className="w-full border border-white/25 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner"
-                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
+                    className="w-full border border-white/20 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner"
+                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.04)' }}
                   />
                 </div>
 
@@ -248,8 +248,8 @@ export default function App() {
                     placeholder="בקשת ברכה מפורטת / פ״ן / סוג הבקשה..."
                     value={item.requestType}
                     onChange={(e) => handleNameChange(item.id, 'requestType', e.target.value)}
-                    className="w-full border border-white/20 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-amber-200 placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner"
-                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.07)' }}
+                    className="w-full border border-white/15 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-amber-200 placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner"
+                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)' }}
                   />
                 </div>
 
@@ -285,7 +285,7 @@ export default function App() {
           rel="noopener noreferrer"
           className="max-w-sm w-full mx-auto p-3.5 rounded-2xl border border-emerald-400/30 hover:border-emerald-400/60 flex items-center justify-between gap-3 text-right transition-all duration-300 group shadow-lg mt-1"
           style={{
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            backgroundColor: 'rgba(16, 185, 129, 0.08)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)'
           }}
@@ -329,19 +329,22 @@ export default function App() {
 
       </div>
 
-      {/* Floating Bottom Right Apple Watch / VisionOS Pure Crystal Glass Clock - Fixed Anchored to Bottom Right */}
+      {/* Floating Bottom Right Apple Watch / VisionOS Pure Crystal Glass Clock - Fixed Anchored strictly to Viewport Right */}
       {isClockVisible && !isClockMinimized && (
         <div 
-          className="flex flex-col items-center text-center border border-white/25 p-3 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.6)] hover:border-[#E5B54F]/40 transition-all duration-300 max-w-[260px] w-full relative overflow-hidden"
+          className="flex flex-col items-center text-center border border-white/20 p-3 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.6)] hover:border-[#E5B54F]/40 transition-all duration-300 relative overflow-hidden"
           style={{
             position: 'fixed',
             bottom: '16px',
             right: '16px',
             left: 'auto',
-            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(30px)',
-            WebkitBackdropFilter: 'blur(30px)',
-            zIndex: 9999
+            width: '260px',
+            maxWidth: 'calc(100vw - 32px)',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            zIndex: 99999,
+            margin: 0
           }}
         >
           {/* Top Apple Glass Sheen Edge */}
