@@ -162,16 +162,10 @@ export default function App() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/85 via-[#050505]/75 to-[#050505]/90" />
       </div>
 
-      {/* Apple-Style Ambient Moving Glow Orbs in Background */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-tr from-[#E5B54F]/15 via-amber-500/10 to-transparent rounded-full blur-[100px] animate-pulse duration-[7000ms]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[350px] bg-gradient-to-bl from-amber-600/10 via-[#E5B54F]/10 to-transparent rounded-full blur-[90px] animate-pulse duration-[10000ms]" />
-      </div>
-
-      {/* Main Completely Centered Layout wrapped in Apple Liquid Glass Card */}
-      <div className="relative z-10 max-w-2xl w-full text-center space-y-6 py-8 px-4 sm:px-8 mx-auto flex flex-col items-center justify-center my-auto bg-white/[0.04] backdrop-blur-2xl border border-white/20 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.7)] shadow-[#E5B54F]/5 relative overflow-hidden transition-all">
+      {/* Main Completely Centered Layout wrapped in iOS 18 Apple Liquid Glass Dock Card */}
+      <div className="relative z-10 max-w-2xl w-full text-center space-y-6 py-8 px-4 sm:px-8 mx-auto flex flex-col items-center justify-center my-auto bg-black/40 backdrop-blur-3xl border border-white/20 rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.75)] shadow-white/5 relative overflow-hidden transition-all">
         
-        {/* Apple Glass Highlight Top Edge */}
+        {/* Apple Glass Sheen Highlight Edge */}
         <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
 
         {/* Main Header - Always Forced on ONE Single Line */}
@@ -191,12 +185,12 @@ export default function App() {
           </p>
         </div>
 
-        {/* Form - Apple Pure Crystal Glass Containers */}
+        {/* Form - iOS 18 Liquid Glass Containers */}
         <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto space-y-5 pt-2 text-center flex flex-col items-center">
           
           <div className="w-full space-y-4">
             {namesList.map((item, index) => (
-              <div key={item.id} className="w-full space-y-3 text-center relative bg-white/[0.03] backdrop-blur-xl border border-white/15 p-4 rounded-2xl shadow-lg transition-all duration-300 hover:border-[#E5B54F]/40 hover:bg-white/[0.06]">
+              <div key={item.id} className="w-full space-y-3 text-center relative bg-white/[0.04] backdrop-blur-2xl border border-white/20 p-4 rounded-2xl shadow-lg transition-all duration-300 hover:border-[#E5B54F]/40 hover:bg-white/[0.07]">
                 <div className="flex items-center justify-between text-xs sm:text-sm px-1 font-bold text-[#E5B54F]">
                   <span className="mx-auto text-center">שם להזכרה #{index + 1}</span>
                   {namesList.length > 1 && (
@@ -217,7 +211,7 @@ export default function App() {
                     placeholder="שם פרטי ומשפחה"
                     value={item.name}
                     onChange={(e) => handleNameChange(item.id, 'name', e.target.value)}
-                    className="w-full bg-white/[0.05] border border-white/15 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none backdrop-blur-md transition-all shadow-inner"
+                    className="w-full bg-black/40 border border-white/20 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none backdrop-blur-xl transition-all shadow-inner"
                   />
                   <input
                     type="text"
@@ -225,9 +219,10 @@ export default function App() {
                     placeholder="שם האם (בן/בת)"
                     value={item.motherName}
                     onChange={(e) => handleNameChange(item.id, 'motherName', e.target.value)}
-                    className="w-full bg-white/[0.05] border border-white/15 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none backdrop-blur-md transition-all shadow-inner"
+                    className="w-full bg-black/40 border border-white/20 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none backdrop-blur-xl transition-all shadow-inner"
                   />
                 </div>
+
 
                 {/* Free Text Input for Request / Blessing */}
                 <div className="pt-0.5 w-full">
@@ -313,7 +308,7 @@ export default function App() {
 
       {/* Floating Bottom Right Apple Watch / VisionOS Pure Crystal Glass Clock - Independent Outside Card Frame */}
       {isClockVisible && !isClockMinimized && (
-        <div className="fixed bottom-4 right-3 sm:right-8 z-50 flex flex-col items-center text-center bg-white/[0.05] backdrop-blur-2xl border border-white/20 p-3 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.7)] shadow-[#E5B54F]/10 hover:border-[#E5B54F]/40 transition-all duration-300 max-w-[260px] w-full relative overflow-hidden">
+        <div className="fixed bottom-4 right-3 sm:right-8 z-50 flex flex-col items-center text-center bg-black/40 backdrop-blur-3xl border border-white/20 p-3 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.7)] shadow-[#E5B54F]/10 hover:border-[#E5B54F]/40 transition-all duration-300 max-w-[260px] w-full relative overflow-hidden">
           {/* Top Apple Glass Sheen Edge */}
           <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
 
