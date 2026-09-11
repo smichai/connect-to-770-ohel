@@ -167,17 +167,17 @@ export default function App() {
       {/* Main Centered Layout */}
       <div className="relative z-10 max-w-lg w-full text-center space-y-6 py-6 px-2 mx-auto flex flex-col items-center">
         
-        {/* Top Side Frameless Mechanical Split-Flap Clock - Small & Sleek */}
-        <div className="w-full flex flex-col items-center sm:items-end px-1 pb-1">
-          <div className="inline-flex items-center gap-1.5 text-xs text-amber-200/90 font-semibold mb-1.5 drop-shadow">
+        {/* Floating Bottom Right Frameless Mechanical Split-Flap Clock */}
+        <div className="fixed bottom-4 right-4 z-40 bg-black/85 border border-[#E5B54F]/30 backdrop-blur-xl rounded-2xl p-3 shadow-2xl flex flex-col items-end text-right">
+          <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-amber-200/90 font-semibold mb-1.5 drop-shadow">
             <Clock size={14} className="text-[#E5B54F]" />
             <span>נותרו עד 12:00 ניו יורק:</span>
           </div>
           
-          {/* Ordered Units in Hebrew (שעות -> דקות -> שניות) */}
-          <div className="flex items-center gap-2.5">
+          {/* Ordered Units in LTR (Left: שעות | Middle: דקות | Right: שניות) */}
+          <div className="flex items-center gap-2 sm:gap-2.5" style={{ direction: 'ltr' }}>
             
-            {/* שעות */}
+            {/* שעות - Left */}
             <div className="flex flex-col items-center gap-0.5">
               <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
                 <div className="relative w-6 h-8 bg-gradient-to-b from-[#333338] via-[#222226] to-[#141416] text-white font-sans font-bold text-sm rounded border border-slate-600/70 shadow-lg flex items-center justify-center overflow-hidden">
@@ -194,7 +194,7 @@ export default function App() {
 
             <span className="text-[#E5B54F] font-bold text-sm pb-3 animate-pulse">:</span>
 
-            {/* דקות */}
+            {/* דקות - Middle */}
             <div className="flex flex-col items-center gap-0.5">
               <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
                 <div className="relative w-6 h-8 bg-gradient-to-b from-[#333338] via-[#222226] to-[#141416] text-white font-sans font-bold text-sm rounded border border-slate-600/70 shadow-lg flex items-center justify-center overflow-hidden">
@@ -211,7 +211,7 @@ export default function App() {
 
             <span className="text-[#E5B54F] font-bold text-sm pb-3 animate-pulse">:</span>
 
-            {/* שניות */}
+            {/* שניות - Right */}
             <div className="flex flex-col items-center gap-0.5">
               <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
                 <div className="relative w-6 h-8 bg-gradient-to-b from-[#333338] via-[#222226] to-[#141416] text-white font-sans font-bold text-sm rounded border border-slate-600/70 shadow-lg flex items-center justify-center overflow-hidden">
