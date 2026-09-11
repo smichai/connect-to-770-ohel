@@ -155,7 +155,7 @@ export default function App() {
       </div>
 
       {/* Main Completely Centered Layout */}
-      <div className="relative z-10 max-w-xl w-full text-center space-y-6 py-8 px-2 mx-auto flex flex-col items-center justify-center my-auto">
+      <div className="relative z-10 max-w-2xl w-full text-center space-y-6 py-8 px-2 mx-auto flex flex-col items-center justify-center my-auto">
         
         {/* Floating Bottom Right Mechanical Split-Flap Clock - Frameless */}
         <div className="fixed bottom-4 right-8 sm:right-12 z-40 flex flex-col items-center text-center drop-shadow-2xl">
@@ -219,9 +219,9 @@ export default function App() {
           </div>
         </div>
 
-        {/* Main Header - 100% Centered */}
+        {/* Main Header - Always Forced on ONE Single Line */}
         <div className="w-full text-center space-y-1 mx-auto flex flex-col items-center justify-center">
-          <h1 className="font-heading font-black text-2xl min-[400px]:text-3xl sm:text-4xl md:text-5xl text-white tracking-tight drop-shadow-lg text-center mx-auto">
+          <h1 className="font-heading font-black text-lg min-[360px]:text-xl min-[440px]:text-2xl sm:text-3xl md:text-4xl text-white tracking-tight drop-shadow-lg text-center mx-auto whitespace-nowrap">
             שליחת פ״נ ערב ראש השנה לאוהל
           </h1>
         </div>
