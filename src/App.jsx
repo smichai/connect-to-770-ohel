@@ -193,7 +193,15 @@ export default function App() {
         </div>
 
         {/* Form - iOS 18 Liquid Glass Containers */}
-        <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto space-y-5 pt-2 text-center flex flex-col items-center">
+        <form 
+          onSubmit={handleSubmit} 
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+            }
+          }}
+          className="w-full max-w-lg mx-auto space-y-5 pt-2 text-center flex flex-col items-center"
+        >
           
           <div className="w-full space-y-4">
             {namesList.map((item, index) => (
