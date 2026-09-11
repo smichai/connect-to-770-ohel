@@ -331,10 +331,17 @@
       return (
         <>
           {/* Main Completely Centered Layout wrapped in Apple Liquid Glass Card */}
-          <div className="relative z-10 max-w-2xl w-full text-center space-y-6 py-8 px-4 sm:px-8 mx-auto flex flex-col items-center justify-center my-auto bg-white/[0.08] backdrop-blur-3xl border border-white/25 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.5)] shadow-white/10 relative overflow-hidden transition-all">
+          <div 
+            className="relative z-10 max-w-2xl w-full text-center space-y-6 py-8 px-4 sm:px-8 mx-auto flex flex-col items-center justify-center my-auto border border-white/25 rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.6)] relative overflow-hidden transition-all"
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              backdropFilter: 'blur(32px)',
+              WebkitBackdropFilter: 'blur(32px)',
+            }}
+          >
             
             {/* Apple Glass Highlight Top Edge */}
-            <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none" />
 
             {/* Main Header - Single Line */}
             <div className="w-full text-center space-y-1 mx-auto flex flex-col items-center justify-center pt-2">
@@ -354,7 +361,15 @@
 
             <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto space-y-5 pt-2 text-center flex flex-col items-center">
               {namesList.map((item, index) => (
-                <div key={item.id} className="w-full space-y-3 text-center relative bg-white/[0.06] backdrop-blur-2xl border border-white/20 p-4 rounded-2xl shadow-lg transition-all duration-300 hover:border-[#E5B54F]/40 hover:bg-white/[0.09]">
+                <div 
+                  key={item.id} 
+                  className="w-full space-y-3 text-center relative border border-white/20 p-4 rounded-2xl shadow-lg transition-all duration-300 hover:border-[#E5B54F]/40"
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.07)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)'
+                  }}
+                >
                   <div className="flex justify-between text-xs sm:text-sm px-1 font-bold text-[#E5B54F]">
                     <span className="mx-auto text-center">שם להזכרה #{index + 1}</span>
                     {namesList.length > 1 && (
@@ -362,8 +377,8 @@
                     )}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-                    <input type="text" required placeholder="שם פרטי ומשפחה" value={item.name} onChange={e => handleNameChange(item.id, 'name', e.target.value)} className="w-full bg-white/[0.07] border border-white/20 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 focus:bg-white/[0.12] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none backdrop-blur-xl transition-all shadow-inner" />
-                    <input type="text" required placeholder="שם האם (בן/בת)" value={item.motherName} onChange={e => handleNameChange(item.id, 'motherName', e.target.value)} className="w-full bg-white/[0.07] border border-white/20 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 focus:bg-white/[0.12] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none backdrop-blur-xl transition-all shadow-inner" />
+                    <input type="text" required placeholder="שם פרטי ומשפחה" value={item.name} onChange={e => handleNameChange(item.id, 'name', e.target.value)} className="w-full border border-white/25 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
+                    <input type="text" required placeholder="שם האם (בן/בת)" value={item.motherName} onChange={e => handleNameChange(item.id, 'motherName', e.target.value)} className="w-full border border-white/25 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner" style={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }} />
                   </div>
                   
                   {/* Free Text Input for Request Type */}
@@ -372,7 +387,8 @@
                     placeholder="בקשת ברכה מפורטת / פ״ן / סוג הבקשה..." 
                     value={item.requestType} 
                     onChange={e => handleNameChange(item.id, 'requestType', e.target.value)} 
-                    className="w-full bg-white/[0.06] border border-white/15 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 focus:bg-white/[0.1] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-amber-200 placeholder-slate-300 text-center focus:outline-none backdrop-blur-md transition-all shadow-inner" 
+                    className="w-full border border-white/20 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-amber-200 placeholder-slate-300 text-center focus:outline-none transition-all shadow-inner" 
+                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.07)' }}
                   />
                 </div>
               ))}
@@ -386,7 +402,7 @@
               </button>
             </form>
 
-            <a href="https://whatsapp.com/channel/0029VayCzKY9mrGXUlgKji0m" target="_blank" rel="noopener noreferrer" className="max-w-sm w-full mx-auto p-3.5 rounded-2xl bg-emerald-500/[0.08] border border-emerald-400/30 hover:border-emerald-400/60 backdrop-blur-xl flex items-center justify-between gap-3 text-right transition-all duration-300 group shadow-lg hover:bg-emerald-500/[0.12] mt-1">
+            <a href="https://whatsapp.com/channel/0029VayCzKY9mrGXUlgKji0m" target="_blank" rel="noopener noreferrer" className="max-w-sm w-full mx-auto p-3.5 rounded-2xl border border-emerald-400/30 hover:border-emerald-400/60 flex items-center justify-between gap-3 text-right transition-all duration-300 group shadow-lg mt-1" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-base font-bold flex-shrink-0 group-hover:scale-110 transition-transform">💬</div>
                 <div className="text-right">
@@ -433,9 +449,21 @@
 
           </div>
 
-          {/* Floating Bottom Right Apple Watch / VisionOS Translucent Glass Clock - Independent Outside Card Frame */}
+          {/* Floating Bottom Right Apple Watch / VisionOS Translucent Glass Clock */}
           {isClockVisible && !isClockMinimized && (
-            <div className="fixed bottom-4 right-3 sm:right-8 z-50 flex flex-col items-center text-center bg-white/[0.08] backdrop-blur-3xl border border-white/25 p-3 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.6)] shadow-white/5 hover:border-[#E5B54F]/40 transition-all duration-300 max-w-[260px] w-full relative overflow-hidden">
+            <div 
+              className="flex flex-col items-center text-center border border-white/25 p-3 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.6)] hover:border-[#E5B54F]/40 transition-all duration-300 max-w-[260px] w-full relative overflow-hidden"
+              style={{
+                position: 'fixed',
+                bottom: '16px',
+                right: '16px',
+                left: 'auto',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(30px)',
+                WebkitBackdropFilter: 'blur(30px)',
+                zIndex: 9999
+              }}
+            >
               <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
 
               <div className="w-full flex items-center justify-between gap-1 mb-2 px-0.5">
