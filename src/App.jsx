@@ -3,7 +3,11 @@ import {
   Plus, 
   Trash2, 
   Clock, 
-  ShieldCheck 
+  ShieldCheck,
+  ChevronRight,
+  ChevronLeft,
+  X,
+  Minimize2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import ohelImage from './assets/ohel-queue.jpg';
@@ -22,6 +26,10 @@ export default function App() {
   const [submittedData, setSubmittedData] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Clock Widget Visibility & Minimized states
+  const [isClockVisible, setIsClockVisible] = useState(true);
+  const [isClockMinimized, setIsClockMinimized] = useState(false);
 
   // Listen to hash changes (e.g. #admin)
   useEffect(() => {
@@ -166,67 +174,129 @@ export default function App() {
         {/* Apple Glass Highlight Top Edge */}
         <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/35 to-transparent pointer-events-none" />
 
-        {/* Floating Bottom Right Apple Watch / VisionOS Widget Clock */}
-        <div className="fixed bottom-4 right-4 sm:right-8 z-40 flex flex-col items-center text-center bg-black/60 backdrop-blur-2xl border border-white/15 p-2.5 sm:p-3 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.8)] shadow-[#E5B54F]/10 hover:border-[#E5B54F]/40 transition-all duration-300">
-          <div className="inline-flex items-center justify-center gap-1.5 text-[11px] sm:text-xs text-amber-200/90 font-semibold mb-1.5 drop-shadow-md text-center mx-auto">
-            <Clock size={13} className="text-[#E5B54F] animate-spin-slow" />
-            <span>נותרו עד 12:00 ניו יורק:</span>
-          </div>
-          
-          {/* Ordered Units in LTR (Left: שעות | Middle: דקות | Right: שניות) */}
-          <div className="flex items-center gap-2 sm:gap-2.5 justify-center" style={{ direction: 'ltr' }}>
+        {/* Floating Bottom Right Apple Watch / VisionOS Translucent Glass Clock */}
+        {isClockVisible && !isClockMinimized && (
+          <div className="fixed bottom-4 right-3 sm:right-8 z-40 flex flex-col items-center text-center bg-black/50 backdrop-blur-2xl border border-white/20 p-3 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.85)] shadow-[#E5B54F]/10 hover:border-[#E5B54F]/40 transition-all duration-300 max-w-[260px] w-full relative overflow-hidden">
+            {/* Top Apple Glass Sheen Edge */}
+            <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
+
+            {/* Top Header & Actions */}
+            <div className="w-full flex items-center justify-between gap-1 mb-2 px-0.5">
+              <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-amber-200/90 font-semibold drop-shadow-md text-right">
+                <Clock size={13} className="text-[#E5B54F]" />
+                <span>נותרו עד 12:00 ניו יורק:</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setIsClockMinimized(true)}
+                  className="text-slate-400 hover:text-amber-300 p-1 rounded-lg hover:bg-white/10 transition-colors"
+                  title="קפל לצד"
+                >
+                  <ChevronRight size={15} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsClockVisible(false)}
+                  className="text-slate-400 hover:text-rose-400 p-1 rounded-lg hover:bg-white/10 transition-colors"
+                  title="סגור"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+            </div>
             
-            {/* שעות - Left */}
-            <div className="flex flex-col items-center gap-0.5">
-              <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
-                <div className="relative w-6 h-8 bg-gradient-to-b from-[#2a2a30] via-[#1a1a1e] to-[#0f0f12] text-white font-sans font-bold text-sm rounded-lg border border-white/10 shadow-lg flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
-                  <span className="relative z-0 drop-shadow-sm">{Math.floor(timeLeft.hours / 10)}</span>
+            {/* Ordered Units in LTR (Left: שעות | Middle: דקות | Right: שניות) */}
+            <div className="flex items-center gap-2 sm:gap-2.5 justify-center w-full pt-0.5" style={{ direction: 'ltr' }}>
+              
+              {/* שעות - Left */}
+              <div className="flex flex-col items-center gap-0.5">
+                <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
+                  <div className="relative w-6 h-8 bg-black/60 backdrop-blur-md text-white font-sans font-bold text-sm rounded-lg border border-white/15 shadow-lg flex items-center justify-center overflow-hidden">
+                    <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
+                    <span className="relative z-0 drop-shadow-sm">{Math.floor(timeLeft.hours / 10)}</span>
+                  </div>
+                  <div className="relative w-6 h-8 bg-black/60 backdrop-blur-md text-white font-sans font-bold text-sm rounded-lg border border-white/15 shadow-lg flex items-center justify-center overflow-hidden">
+                    <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
+                    <span className="relative z-0 drop-shadow-sm">{timeLeft.hours % 10}</span>
+                  </div>
                 </div>
-                <div className="relative w-6 h-8 bg-gradient-to-b from-[#2a2a30] via-[#1a1a1e] to-[#0f0f12] text-white font-sans font-bold text-sm rounded-lg border border-white/10 shadow-lg flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
-                  <span className="relative z-0 drop-shadow-sm">{timeLeft.hours % 10}</span>
-                </div>
+                <span className="text-[10px] text-amber-200/90 font-bold">שעות</span>
               </div>
-              <span className="text-[10px] text-amber-200/90 font-bold">שעות</span>
-            </div>
 
-            <span className="text-[#E5B54F] font-bold text-sm pb-3 animate-pulse">:</span>
+              <span className="text-[#E5B54F] font-bold text-sm pb-3 animate-pulse">:</span>
 
-            {/* דקות - Middle */}
-            <div className="flex flex-col items-center gap-0.5">
-              <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
-                <div className="relative w-6 h-8 bg-gradient-to-b from-[#2a2a30] via-[#1a1a1e] to-[#0f0f12] text-white font-sans font-bold text-sm rounded-lg border border-white/10 shadow-lg flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
-                  <span className="relative z-0 drop-shadow-sm">{Math.floor(timeLeft.minutes / 10)}</span>
+              {/* דקות - Middle */}
+              <div className="flex flex-col items-center gap-0.5">
+                <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
+                  <div className="relative w-6 h-8 bg-black/60 backdrop-blur-md text-white font-sans font-bold text-sm rounded-lg border border-white/15 shadow-lg flex items-center justify-center overflow-hidden">
+                    <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
+                    <span className="relative z-0 drop-shadow-sm">{Math.floor(timeLeft.minutes / 10)}</span>
+                  </div>
+                  <div className="relative w-6 h-8 bg-black/60 backdrop-blur-md text-white font-sans font-bold text-sm rounded-lg border border-white/15 shadow-lg flex items-center justify-center overflow-hidden">
+                    <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
+                    <span className="relative z-0 drop-shadow-sm">{timeLeft.minutes % 10}</span>
+                  </div>
                 </div>
-                <div className="relative w-6 h-8 bg-gradient-to-b from-[#2a2a30] via-[#1a1a1e] to-[#0f0f12] text-white font-sans font-bold text-sm rounded-lg border border-white/10 shadow-lg flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
-                  <span className="relative z-0 drop-shadow-sm">{timeLeft.minutes % 10}</span>
-                </div>
+                <span className="text-[10px] text-amber-200/90 font-bold">דקות</span>
               </div>
-              <span className="text-[10px] text-amber-200/90 font-bold">דקות</span>
-            </div>
 
-            <span className="text-[#E5B54F] font-bold text-sm pb-3 animate-pulse">:</span>
+              <span className="text-[#E5B54F] font-bold text-sm pb-3 animate-pulse">:</span>
 
-            {/* שניות - Right */}
-            <div className="flex flex-col items-center gap-0.5">
-              <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
-                <div className="relative w-6 h-8 bg-gradient-to-b from-[#2a2a30] via-[#1a1a1e] to-[#0f0f12] text-white font-sans font-bold text-sm rounded-lg border border-white/10 shadow-lg flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
-                  <span className="relative z-0 drop-shadow-sm">{Math.floor(timeLeft.seconds / 10)}</span>
+              {/* שניות - Right */}
+              <div className="flex flex-col items-center gap-0.5">
+                <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
+                  <div className="relative w-6 h-8 bg-black/60 backdrop-blur-md text-white font-sans font-bold text-sm rounded-lg border border-white/15 shadow-lg flex items-center justify-center overflow-hidden">
+                    <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
+                    <span className="relative z-0 drop-shadow-sm">{Math.floor(timeLeft.seconds / 10)}</span>
+                  </div>
+                  <div className="relative w-6 h-8 bg-black/60 backdrop-blur-md text-white font-sans font-bold text-sm rounded-lg border border-white/15 shadow-lg flex items-center justify-center overflow-hidden">
+                    <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
+                    <span className="relative z-0 drop-shadow-sm">{timeLeft.seconds % 10}</span>
+                  </div>
                 </div>
-                <div className="relative w-6 h-8 bg-gradient-to-b from-[#2a2a30] via-[#1a1a1e] to-[#0f0f12] text-white font-sans font-bold text-sm rounded-lg border border-white/10 shadow-lg flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
-                  <span className="relative z-0 drop-shadow-sm">{timeLeft.seconds % 10}</span>
-                </div>
+                <span className="text-[10px] text-amber-200/90 font-bold">שניות</span>
               </div>
-              <span className="text-[10px] text-amber-200/90 font-bold">שניות</span>
-            </div>
 
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Minimized Side Badge */}
+        {isClockVisible && isClockMinimized && (
+          <div className="fixed bottom-4 right-3 z-40">
+            <button
+              type="button"
+              onClick={() => setIsClockMinimized(false)}
+              className="bg-black/50 backdrop-blur-2xl border border-[#E5B54F]/50 text-amber-200 hover:text-white px-3.5 py-2 rounded-full shadow-2xl flex items-center gap-2 text-xs font-bold transition-all hover:scale-105 group"
+              title="פתח שעון"
+            >
+              <Clock size={14} className="text-[#E5B54F] group-hover:rotate-12 transition-transform" />
+              <span style={{ direction: 'ltr' }}>
+                {String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
+              </span>
+              <ChevronLeft size={14} className="text-[#E5B54F]" />
+            </button>
+          </div>
+        )}
+
+        {/* Closed Button Trigger */}
+        {!isClockVisible && (
+          <div className="fixed bottom-4 right-3 z-40">
+            <button
+              type="button"
+              onClick={() => {
+                setIsClockVisible(true);
+                setIsClockMinimized(false);
+              }}
+              className="bg-black/40 backdrop-blur-md border border-white/20 text-slate-400 hover:text-amber-200 p-2.5 rounded-full shadow-xl transition-all hover:scale-110"
+              title="הצג שעון"
+            >
+              <Clock size={16} />
+            </button>
+          </div>
+        )}
+
 
         {/* Main Header - Always Forced on ONE Single Line */}
         <div className="w-full text-center space-y-1 mx-auto flex flex-col items-center justify-center pt-2">
