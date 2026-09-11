@@ -19,7 +19,7 @@ import {
   FileText
 } from 'lucide-react';
 
-const DEFAULT_PIN = "770770";
+const DEFAULT_PIN = "327548723";
 
 export default function AdminDashboard({ onBackToSite }) {
   const [pinInput, setPinInput] = useState('');
@@ -67,7 +67,7 @@ export default function AdminDashboard({ onBackToSite }) {
       sessionStorage.setItem('admin_authenticated', 'true');
       setPinError('');
     } else {
-      setPinError('קוד גישה שגוי, נסה שוב (קוד ברירת מחדל: 770770)');
+      setPinError('קוד גישה שגוי, נסה שוב');
     }
   };
 

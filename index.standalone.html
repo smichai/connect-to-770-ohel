@@ -86,12 +86,12 @@
 
       const handleLogin = (e) => {
         e.preventDefault();
-        if (pinInput.trim() === '770770') {
+        if (pinInput.trim() === '327548723') {
           setIsAuthenticated(true);
           sessionStorage.setItem('admin_auth', 'true');
           setPinError('');
         } else {
-          setPinError('קוד שגוי (קוד ברירת מחדל: 770770)');
+          setPinError('קוד שגוי, נסה שוב');
         }
       };
 
