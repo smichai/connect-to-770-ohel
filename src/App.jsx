@@ -304,7 +304,7 @@ export default function App() {
             disabled={isSubmitting}
             className="w-full py-4 rounded-xl bg-[#E5B54F] hover:bg-[#d4a33d] disabled:opacity-50 text-slate-950 font-black text-lg sm:text-xl shadow-2xl transition-all cursor-pointer mt-2 text-center"
           >
-            {isSubmitting ? 'שומר ב-Firebase...' : 'שלח שמות לאוהל הקדוש 🍯'}
+            {isSubmitting ? 'שומר...' : 'שלח שמות לאוהל הקדוש 🍯'}
           </button>
 
         </form>
@@ -355,7 +355,7 @@ export default function App() {
 
       </div>
 
-      {/* Confirmation Modal - Redesigned Gold & Black Theme Without WhatsApp Share Button */}
+      {/* Confirmation Modal - Clean & Elegant */}
       {showSuccessModal && submittedData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" dir="rtl">
           <div className="bg-[#0b0c10] border border-[#E5B54F]/40 max-w-sm w-full rounded-3xl p-6 text-center space-y-4 shadow-2xl">
@@ -370,7 +370,7 @@ export default function App() {
                 השמות נקלטו בהצלחה
               </h3>
               <p className="text-xs text-slate-300 leading-relaxed">
-                צוות ערוץ <strong className="text-[#E5B54F]">להתחבר ל-770</strong> ידאג להזכיר את השמות על הציון הקדוש בערב ראש השנה.
+                השמות ייזכרו על הציון הקדוש לברכה והצלחה 🍯
               </p>
             </div>
 
