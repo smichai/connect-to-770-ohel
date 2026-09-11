@@ -243,8 +243,7 @@ export default function AdminDashboard({ onBackToSite }) {
             </button>
           </form>
 
-          <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-xs text-slate-500">
-            <span>ברירת מחדל: 770770</span>
+          <div className="pt-2 border-t border-slate-800 flex justify-end items-center text-xs text-slate-500">
             <button onClick={onBackToSite} className="text-[#E5B54F] hover:underline flex items-center gap-1">
               <span>חזרה לאתר</span>
               <ArrowRight size={12} />
