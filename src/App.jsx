@@ -222,7 +222,7 @@ export default function App() {
         {/* Main Header - 100% Centered */}
         <div className="w-full text-center space-y-1 mx-auto flex flex-col items-center justify-center">
           <h1 className="font-heading font-black text-2xl min-[400px]:text-3xl sm:text-4xl md:text-5xl text-white tracking-tight drop-shadow-lg text-center mx-auto">
-            שליחת שמות לאוהל הקדוש
+            שליחת פ״נ ערב ראש השנה לאוהל
           </h1>
         </div>
 
@@ -304,7 +304,7 @@ export default function App() {
             disabled={isSubmitting}
             className="w-full py-4 rounded-xl bg-[#E5B54F] hover:bg-[#d4a33d] disabled:opacity-50 text-slate-950 font-black text-lg sm:text-xl shadow-2xl transition-all cursor-pointer mt-2 text-center"
           >
-            {isSubmitting ? 'שומר...' : 'שלח שמות לאוהל הקדוש 🍯'}
+            {isSubmitting ? 'שומר...' : 'שלח פ״ן לאוהל הקדוש 🍯'}
           </button>
 
         </form>
@@ -355,7 +355,7 @@ export default function App() {
 
       </div>
 
-      {/* Confirmation Modal - Clean & Elegant */}
+      {/* Confirmation Modal */}
       {showSuccessModal && submittedData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" dir="rtl">
           <div className="bg-[#0b0c10] border border-[#E5B54F]/40 max-w-sm w-full rounded-3xl p-6 text-center space-y-4 shadow-2xl">

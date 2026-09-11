@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>שליחת שמות לאוהל הקדוש | להתחבר ל-770</title>
+  <title>שליחת פ״נ ערב ראש השנה לאוהל</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -363,7 +365,7 @@
 
           <div className="w-full text-center space-y-1 mx-auto flex flex-col items-center justify-center">
             <h1 className="font-heading font-black text-2xl min-[400px]:text-3xl sm:text-4xl md:text-5xl text-white tracking-tight drop-shadow-lg text-center mx-auto">
-              שליחת שמות לאוהל הקדוש
+              שליחת פ״נ ערב ראש השנה לאוהל
             </h1>
           </div>
 
@@ -404,7 +406,7 @@
             </button>
 
             <button type="submit" disabled={isSubmitting} className="w-full py-4 rounded-xl bg-[#E5B54F] hover:bg-[#d4a33d] text-black font-black text-lg shadow-xl text-center mt-2">
-              {isSubmitting ? 'שומר...' : 'שלח שמות לאוהל הקדוש 🍯'}
+              {isSubmitting ? 'שומר...' : 'שלח פ״ן לאוהל הקדוש 🍯'}
             </button>
           </form>
 
@@ -438,7 +440,7 @@
                   </p>
                 </div>
 
-                <div className="bg-black/70 rounded-2xl p-3.5 text-right space-y-1.5 text-xs border border-slate-800">
+                <div className="bg-black/70 rounded-2xl p-[#E5B54F]/10 text-right space-y-1.5 text-xs border border-slate-800 p-3">
                   {submittedData?.names.map((n, i) => (
                     <div key={i} className="text-slate-200 flex items-center justify-between">
                       <div>• <strong>{n.name}</strong> <span className="text-amber-200/80">({n.motherName})</span></div>
