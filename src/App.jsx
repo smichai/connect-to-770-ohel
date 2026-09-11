@@ -16,7 +16,7 @@ export default function App() {
   });
 
   const [namesList, setNamesList] = useState([
-    { id: '1', name: '', motherName: '', requestType: 'ברכה ואיחול' }
+    { id: '1', name: '', motherName: '', requestType: '' }
   ]);
 
   const [submitterName, setSubmitterName] = useState('');
@@ -70,7 +70,7 @@ export default function App() {
   const handleAddNameRow = () => {
     setNamesList([
       ...namesList,
-      { id: Date.now().toString(), name: '', motherName: '', requestType: 'ברכה ואיחול' }
+      { id: Date.now().toString(), name: '', motherName: '', requestType: '' }
     ]);
   };
 
@@ -101,7 +101,7 @@ export default function App() {
         await addNameSubmission({
           fullName: item.name.trim(),
           motherName: item.motherName.trim(),
-          requestType: item.requestType || 'ברכה ואיחול',
+          requestType: item.requestType.trim() || 'ברכה ואיחול',
           note: personalRequest.trim()
         });
       }
@@ -127,7 +127,7 @@ export default function App() {
         });
       }
 
-      setNamesList([{ id: '1', name: '', motherName: '', requestType: 'ברכה ואיחול' }]);
+      setNamesList([{ id: '1', name: '', motherName: '', requestType: '' }]);
       setPersonalRequest('');
 
     } catch (err) {
@@ -293,20 +293,15 @@ export default function App() {
                   />
                 </div>
 
-                {/* Category selector */}
+                {/* Free Text Input for Request Type */}
                 <div className="pt-1 w-full">
-                  <select
+                  <input
+                    type="text"
+                    placeholder="סוג בקשה (לדוגמה: רפואה / זיווג / פרנסה / ברכה...)"
                     value={item.requestType}
                     onChange={(e) => handleNameChange(item.id, 'requestType', e.target.value)}
-                    className="w-full bg-slate-900/90 border border-slate-700 text-xs text-amber-200/90 rounded-xl py-2 px-3 text-center focus:border-[#E5B54F] outline-none"
-                  >
-                    <option value="ברכה ואיחול">סוג בקשה: ברכה ואיחול</option>
-                    <option value="רפואה">סוג בקשה: רפואה</option>
-                    <option value="זיווג">סוג בקשה: זיווג הגון</option>
-                    <option value="פרנסה">סוג בקשה: פרנסה טובה</option>
-                    <option value="נחת מהילדים">סוג בקשה: נחת מהילדים</option>
-                    <option value="כללי">סוג בקשה: כללי</option>
-                  </select>
+                    className="w-full bg-black/50 border border-slate-700/80 focus:border-[#E5B54F] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-amber-200 placeholder-slate-400 text-center focus:outline-none backdrop-blur-md transition-all"
+                  />
                 </div>
 
               </div>

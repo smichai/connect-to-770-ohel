@@ -149,7 +149,7 @@
       };
 
       const filteredNames = names.filter(i => {
-        const matchSearch = (i.fullName || '').includes(searchQuery) || (i.motherName || '').includes(searchQuery) || (i.note || '').includes(searchQuery);
+        const matchSearch = (i.fullName || '').includes(searchQuery) || (i.motherName || '').includes(searchQuery) || (i.note || '').includes(searchQuery) || (i.requestType || '').includes(searchQuery);
         const matchCat = selectedCategory === 'all' || i.requestType === selectedCategory;
         const matchStat = statusFilter === 'all' || (statusFilter === 'new' && i.status !== 'processed') || (statusFilter === 'processed' && i.status === 'processed');
         return matchSearch && matchCat && matchStat;
@@ -194,16 +194,9 @@
               type="text" 
               value={searchQuery} 
               onChange={e => setSearchQuery(e.target.value)} 
-              placeholder="חפש שם..." 
+              placeholder="חפש שם / סוג בקשה..." 
               className="bg-slate-900 border border-slate-700 text-xs text-white p-2.5 rounded-xl flex-1"
             />
-            <select value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)} className="bg-slate-900 border border-slate-700 text-xs text-amber-200 p-2.5 rounded-xl">
-              <option value="all">כל הקטגוריות</option>
-              <option value="ברכה ואיחול">ברכה ואיחול</option>
-              <option value="רפואה">רפואה</option>
-              <option value="זיווג">זיווג</option>
-              <option value="פרנסה">פרנסה</option>
-            </select>
           </div>
 
           <div className="overflow-x-auto bg-slate-950/60 rounded-xl border border-slate-800">
@@ -245,7 +238,7 @@
 
     function App() {
       const [currentView, setCurrentView] = useState(() => window.location.hash === '#admin' ? 'admin' : 'landing');
-      const [namesList, setNamesList] = useState([{ id: '1', name: '', motherName: '', requestType: 'ברכה ואיחול' }]);
+      const [namesList, setNamesList] = useState([{ id: '1', name: '', motherName: '', requestType: '' }]);
       const [personalRequest, setPersonalRequest] = useState('');
       const [submittedData, setSubmittedData] = useState(null);
       const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -280,7 +273,7 @@
       }, []);
 
       const handleAddNameRow = () => {
-        setNamesList([...namesList, { id: Date.now().toString(), name: '', motherName: '', requestType: 'ברכה ואיחול' }]);
+        setNamesList([...namesList, { id: Date.now().toString(), name: '', motherName: '', requestType: '' }]);
       };
 
       const handleRemoveNameRow = (id) => {
@@ -303,7 +296,7 @@
             await db.collection(NAMES_COLLECTION).add({
               fullName: item.name.trim(),
               motherName: item.motherName.trim(),
-              requestType: item.requestType || 'ברכה ואיחול',
+              requestType: item.requestType.trim() || 'ברכה ואיחול',
               note: personalRequest.trim(),
               status: 'new',
               createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -322,12 +315,12 @@
             confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 }, colors: ['#E5B54F', '#F59E0B', '#FFFFFF'] });
           }
 
-          setNamesList([{ id: '1', name: '', motherName: '', requestType: 'ברכה ואיחול' }]);
+          setNamesList([{ id: '1', name: '', motherName: '', requestType: '' }]);
           setPersonalRequest('');
 
         } catch (err) {
           console.error(err);
-          alert('שגיאה בשמירת השמות ב-Firestore. ודא שהגדרת Test Mode ב-Firebase Console.');
+          alert('שגיאה בשמירת השמות ב-Firestore.');
         } finally {
           setIsSubmitting(false);
         }
@@ -340,7 +333,7 @@
       return (
         <div className="relative z-10 max-w-xl w-full text-center space-y-6 py-8 px-2 mx-auto flex flex-col items-center justify-center my-auto">
           
-          {/* Floating Mechanical Clock Bottom Right - Frameless (No Box Container) */}
+          {/* Floating Mechanical Clock Bottom Right - Frameless */}
           <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end text-right drop-shadow-2xl">
             <div className="inline-flex items-center gap-1.5 text-[11px] text-amber-200/90 font-semibold mb-1.5 drop-shadow-md">
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
@@ -397,15 +390,18 @@
                   )}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-                  <input type="text" required placeholder="שם פרטי ומשפחה" value={item.name} onChange={e => handleNameChange(item.id, 'name', e.target.value)} className="w-full bg-black/50 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white text-center" />
-                  <input type="text" required placeholder="שם האם (בן/בת)" value={item.motherName} onChange={e => handleNameChange(item.id, 'motherName', e.target.value)} className="w-full bg-black/50 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white text-center" />
+                  <input type="text" required placeholder="שם פרטי ומשפחה" value={item.name} onChange={e => handleNameChange(item.id, 'name', e.target.value)} className="w-full bg-black/50 border border-[#E5B54F]/30 focus:border-[#E5B54F] rounded-xl px-3 py-2.5 text-sm text-white text-center" />
+                  <input type="text" required placeholder="שם האם (בן/בת)" value={item.motherName} onChange={e => handleNameChange(item.id, 'motherName', e.target.value)} className="w-full bg-black/50 border border-[#E5B54F]/30 focus:border-[#E5B54F] rounded-xl px-3 py-2.5 text-sm text-white text-center" />
                 </div>
-                <select value={item.requestType} onChange={e => handleNameChange(item.id, 'requestType', e.target.value)} className="w-full bg-slate-900 border border-slate-700 text-xs text-amber-200 rounded-xl p-2 text-center">
-                  <option value="ברכה ואיחול">סוג בקשה: ברכה ואיחול</option>
-                  <option value="רפואה">סוג בקשה: רפואה</option>
-                  <option value="זיווג">סוג בקשה: זיווג הגון</option>
-                  <option value="פרנסה">סוג בקשה: פרנסה טובה</option>
-                </select>
+                
+                {/* Free Text Input for Request Type */}
+                <input 
+                  type="text" 
+                  placeholder="סוג בקשה (לדוגמה: רפואה / זיווג / פרנסה / ברכה...)" 
+                  value={item.requestType} 
+                  onChange={e => handleNameChange(item.id, 'requestType', e.target.value)} 
+                  className="w-full bg-black/50 border border-slate-700/80 focus:border-[#E5B54F] text-xs sm:text-sm text-amber-200 placeholder-slate-400 text-center rounded-xl p-2.5 outline-none" 
+                />
               </div>
             ))}
 
