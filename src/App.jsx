@@ -176,15 +176,15 @@ export default function App() {
       {/* Main Completely Centered Layout */}
       <div className="relative z-10 max-w-xl w-full text-center space-y-6 py-8 px-2 mx-auto flex flex-col items-center justify-center my-auto">
         
-        {/* Floating Bottom Right Mechanical Split-Flap Clock - Frameless (No Box/Border) */}
-        <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end text-right drop-shadow-2xl">
-          <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-amber-200/90 font-semibold mb-1.5 drop-shadow-md">
+        {/* Floating Bottom Right Mechanical Split-Flap Clock - Shifted Slightly Left & Centered Header */}
+        <div className="fixed bottom-4 right-8 sm:right-12 z-40 flex flex-col items-center text-center drop-shadow-2xl">
+          <div className="inline-flex items-center justify-center gap-1.5 text-[11px] sm:text-xs text-amber-200/90 font-semibold mb-1.5 drop-shadow-md text-center mx-auto">
             <Clock size={14} className="text-[#E5B54F]" />
             <span>נותרו עד 12:00 ניו יורק:</span>
           </div>
           
           {/* Ordered Units in LTR (Left: שעות | Middle: דקות | Right: שניות) */}
-          <div className="flex items-center gap-2 sm:gap-2.5" style={{ direction: 'ltr' }}>
+          <div className="flex items-center gap-2 sm:gap-2.5 justify-center" style={{ direction: 'ltr' }}>
             
             {/* שעות - Left */}
             <div className="flex flex-col items-center gap-0.5">
@@ -422,7 +422,7 @@ export default function App() {
 
               <button
                 onClick={() => setShowSuccessModal(false)}
-                className="w-full py-2 bg-slate-800 text-slate-400 text-xs rounded-xl"
+                className="w-full py-2 bg-slate-800 text-[#E5B54F] text-xs rounded-xl"
               >
                 סגור
               </button>
