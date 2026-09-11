@@ -163,7 +163,7 @@ export default function App() {
       </div>
 
       {/* Main Completely Centered Layout wrapped in iOS 18 Apple Liquid Glass Dock Card */}
-      <div className="relative z-10 max-w-2xl w-full text-center space-y-6 py-8 px-4 sm:px-8 mx-auto flex flex-col items-center justify-center my-auto bg-black/40 backdrop-blur-3xl border border-white/20 rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.75)] shadow-white/5 relative overflow-hidden transition-all">
+      <div className="relative z-10 max-w-2xl w-full text-center space-y-6 py-8 px-4 sm:px-8 mx-auto flex flex-col items-center justify-center my-auto bg-white/[0.08] backdrop-blur-3xl border border-white/25 rounded-[32px] shadow-[0_20px_60px_rgba(0,0,0,0.5)] shadow-white/10 relative overflow-hidden transition-all">
         
         {/* Apple Glass Sheen Highlight Edge */}
         <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
@@ -190,7 +190,7 @@ export default function App() {
           
           <div className="w-full space-y-4">
             {namesList.map((item, index) => (
-              <div key={item.id} className="w-full space-y-3 text-center relative bg-white/[0.04] backdrop-blur-2xl border border-white/20 p-4 rounded-2xl shadow-lg transition-all duration-300 hover:border-[#E5B54F]/40 hover:bg-white/[0.07]">
+              <div key={item.id} className="w-full space-y-3 text-center relative bg-white/[0.06] backdrop-blur-2xl border border-white/20 p-4 rounded-2xl shadow-lg transition-all duration-300 hover:border-[#E5B54F]/40 hover:bg-white/[0.09]">
                 <div className="flex items-center justify-between text-xs sm:text-sm px-1 font-bold text-[#E5B54F]">
                   <span className="mx-auto text-center">שם להזכרה #{index + 1}</span>
                   {namesList.length > 1 && (
@@ -211,7 +211,7 @@ export default function App() {
                     placeholder="שם פרטי ומשפחה"
                     value={item.name}
                     onChange={(e) => handleNameChange(item.id, 'name', e.target.value)}
-                    className="w-full bg-black/40 border border-white/20 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none backdrop-blur-xl transition-all shadow-inner"
+                    className="w-full bg-white/[0.07] border border-white/20 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 focus:bg-white/[0.12] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none backdrop-blur-xl transition-all shadow-inner"
                   />
                   <input
                     type="text"
@@ -219,7 +219,7 @@ export default function App() {
                     placeholder="שם האם (בן/בת)"
                     value={item.motherName}
                     onChange={(e) => handleNameChange(item.id, 'motherName', e.target.value)}
-                    className="w-full bg-black/40 border border-white/20 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none backdrop-blur-xl transition-all shadow-inner"
+                    className="w-full bg-white/[0.07] border border-white/20 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 focus:bg-white/[0.12] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-300 text-center focus:outline-none backdrop-blur-xl transition-all shadow-inner"
                   />
                 </div>
 
@@ -231,7 +231,7 @@ export default function App() {
                     placeholder="בקשת ברכה מפורטת / פ״ן / סוג הבקשה..."
                     value={item.requestType}
                     onChange={(e) => handleNameChange(item.id, 'requestType', e.target.value)}
-                    className="w-full bg-white/[0.05] border border-white/15 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-amber-200 placeholder-slate-300 text-center focus:outline-none backdrop-blur-md transition-all shadow-inner"
+                    className="w-full bg-white/[0.06] border border-white/15 focus:border-[#E5B54F] focus:ring-2 focus:ring-[#E5B54F]/30 focus:bg-white/[0.1] rounded-xl px-4 py-2.5 text-xs sm:text-sm text-amber-200 placeholder-slate-300 text-center focus:outline-none backdrop-blur-md transition-all shadow-inner"
                   />
                 </div>
 
@@ -308,7 +308,7 @@ export default function App() {
 
       {/* Floating Bottom Right Apple Watch / VisionOS Pure Crystal Glass Clock - Independent Outside Card Frame */}
       {isClockVisible && !isClockMinimized && (
-        <div className="fixed bottom-4 right-3 sm:right-8 z-50 flex flex-col items-center text-center bg-black/40 backdrop-blur-3xl border border-white/20 p-3 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.7)] shadow-[#E5B54F]/10 hover:border-[#E5B54F]/40 transition-all duration-300 max-w-[260px] w-full relative overflow-hidden">
+        <div className="fixed bottom-4 right-3 sm:right-8 z-50 flex flex-col items-center text-center bg-white/[0.08] backdrop-blur-3xl border border-white/25 p-3 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.6)] shadow-white/5 hover:border-[#E5B54F]/40 transition-all duration-300 max-w-[260px] w-full relative overflow-hidden">
           {/* Top Apple Glass Sheen Edge */}
           <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
 
