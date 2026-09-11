@@ -23,13 +23,13 @@
   <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
+  <!-- Firebase Compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
   <style>
-    body {
-      font-family: 'Heebo', sans-serif;
-    }
-    .font-heading {
-      font-family: 'Rubik', sans-serif;
-    }
+    body { font-family: 'Heebo', sans-serif; }
+    .font-heading { font-family: 'Rubik', sans-serif; }
   </style>
 </head>
 <body class="bg-[#050505] text-slate-100 min-h-screen selection:bg-[#E5B54F] selection:text-black flex items-center justify-center p-4 relative overflow-x-hidden">
@@ -39,34 +39,224 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    function App() {
-      const [namesList, setNamesList] = useState([
-        { id: '1', name: '', motherName: '' }
-      ]);
+    // Firebase Config & Init
+    const firebaseConfig = {
+      apiKey: "AIzaSyBq8fUIKSjn9tocpWzyCLrs-_YQxpKh_g",
+      authDomain: "ooooo-96f77.firebaseapp.com",
+      projectId: "ooooo-96f77",
+      storageBucket: "ooooo-96f77.firebasestorage.app",
+      messagingSenderId: "979892592841",
+      appId: "1:979892592841:web:c971861e453678d70ead18",
+      measurementId: "G-WS4FG769EW"
+    };
 
-      const [submitterName, setSubmitterName] = useState('');
-      const [submitterPhone, setSubmitterPhone] = useState('');
-      const [personalRequest, setPersonalRequest] = useState('');
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+    const NAMES_COLLECTION = "names_770";
 
-      const [submittedData, setSubmittedData] = useState(null);
-      const [showSuccessModal, setShowSuccessModal] = useState(false);
-      const [showAdminModal, setShowAdminModal] = useState(false);
-      const [adminPassword, setAdminPassword] = useState('');
-      const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-
-      const [allSubmissions, setAllSubmissions] = useState(() => {
-        const saved = localStorage.getItem('ohel_submissions_770');
-        if (saved) {
-          try { return JSON.parse(saved); } catch (e) { return []; }
-        }
-        return [];
-      });
+    function AdminDashboard({ onBackToSite }) {
+      const [pinInput, setPinInput] = useState('');
+      const [isAuthenticated, setIsAuthenticated] = useState(() => sessionStorage.getItem('admin_auth') === 'true');
+      const [pinError, setPinError] = useState('');
+      const [names, setNames] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [searchQuery, setSearchQuery] = useState('');
+      const [selectedCategory, setSelectedCategory] = useState('all');
+      const [statusFilter, setStatusFilter] = useState('all');
 
       useEffect(() => {
-        localStorage.setItem('ohel_submissions_770', JSON.stringify(allSubmissions));
-      }, [allSubmissions]);
+        if (!isAuthenticated) return;
+        setLoading(true);
+        const unsubscribe = db.collection(NAMES_COLLECTION)
+          .orderBy("createdAt", "desc")
+          .onSnapshot((snapshot) => {
+            const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setNames(list);
+            setLoading(false);
+          }, (err) => {
+            console.error("Firestore Listen Error:", err);
+            setLoading(false);
+          });
+        return () => unsubscribe();
+      }, [isAuthenticated]);
 
+      const handleLogin = (e) => {
+        e.preventDefault();
+        if (pinInput.trim() === '770770') {
+          setIsAuthenticated(true);
+          sessionStorage.setItem('admin_auth', 'true');
+          setPinError('');
+        } else {
+          setPinError('קוד שגוי (קוד ברירת מחדל: 770770)');
+        }
+      };
+
+      const handleToggleStatus = async (id, currentStatus) => {
+        const nextStatus = currentStatus === 'processed' ? 'new' : 'processed';
+        await db.collection(NAMES_COLLECTION).doc(id).update({ status: nextStatus });
+      };
+
+      const handleDelete = async (id, name) => {
+        if (window.confirm(`האם למחוק את "${name}"?`)) {
+          await db.collection(NAMES_COLLECTION).doc(id).delete();
+        }
+      };
+
+      const exportToCSV = () => {
+        if (filteredNames.length === 0) return alert('אין שמות לייצוא');
+        const headers = ['תאריך', 'שם מלא', 'שם האם', 'סוג הבקשה', 'הערות', 'סטטוס'];
+        const rows = filteredNames.map(i => [
+          i.formattedDate || '',
+          i.fullName || '',
+          i.motherName || '',
+          i.requestType || '',
+          `"${(i.note || '').replace(/"/g, '""')}"`,
+          i.status === 'processed' ? 'נקרא' : 'חדש'
+        ]);
+        const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `שמות_770_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+      };
+
+      const handlePrint = () => {
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) return alert('אפשר חלונות קופצים בדפדפן להדפסה.');
+        printWindow.document.write(`
+          <html dir="rtl">
+          <head><title>רשימת שמות לאוהל 770</title>
+          <style>body{font-family:sans-serif;padding:20px;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #333;padding:8px;text-align:right;} th{background:#eee;}</style>
+          </head>
+          <body>
+            <h2 style="text-align:center;">ב"ה | רשימת שמות לאוהל הקדוש 770</h2>
+            <p style="text-align:center;">סה"כ שמות: ${filteredNames.length} | הדפסה: ${new Date().toLocaleString('he-IL')}</p>
+            <table>
+              <thead><tr><th>#</th><th>שם מלא + שם האם</th><th>בקשה</th><th>הערות</th><th>תאריך</th></tr></thead>
+              <tbody>
+                ${filteredNames.map((n, i) => `<tr><td>${i+1}</td><td><b>${n.fullName}</b> בת/בן <b>${n.motherName}</b></td><td>${n.requestType || 'כללי'}</td><td>${n.note || '-'}</td><td>${n.formattedDate || ''}</td></tr>`).join('')}
+              </tbody>
+            </table>
+            <script>window.onload=function(){window.print();}</script>
+          </body>
+          </html>
+        `);
+        printWindow.document.close();
+      };
+
+      const filteredNames = names.filter(i => {
+        const matchSearch = (i.fullName || '').includes(searchQuery) || (i.motherName || '').includes(searchQuery) || (i.note || '').includes(searchQuery);
+        const matchCat = selectedCategory === 'all' || i.requestType === selectedCategory;
+        const matchStat = statusFilter === 'all' || (statusFilter === 'new' && i.status !== 'processed') || (statusFilter === 'processed' && i.status === 'processed');
+        return matchSearch && matchCat && matchStat;
+      });
+
+      if (!isAuthenticated) {
+        return (
+          <div className="max-w-md w-full bg-[#111116] border border-[#E5B54F]/30 rounded-2xl p-6 text-center space-y-4">
+            <h2 className="text-xl font-bold text-white">כניסת ניהול שמות - 770</h2>
+            <form onSubmit={handleLogin} className="space-y-3">
+              <input 
+                type="password" 
+                value={pinInput} 
+                onChange={(e) => setPinInput(e.target.value)} 
+                placeholder="הזן קוד (770770)..."
+                className="w-full bg-slate-900 border border-slate-700 text-center text-white py-3 rounded-xl outline-none text-lg"
+              />
+              {pinError && <p className="text-red-400 text-xs">{pinError}</p>}
+              <button type="submit" className="w-full bg-[#E5B54F] text-black font-bold py-3 rounded-xl">כניסה</button>
+            </form>
+            <button onClick={onBackToSite} className="text-xs text-[#E5B54F] underline">חזרה לאתר</button>
+          </div>
+        );
+      }
+
+      return (
+        <div className="max-w-5xl w-full bg-[#111116] border border-[#E5B54F]/30 rounded-2xl p-6 space-y-6 text-right" dir="rtl">
+          <div className="flex justify-between items-center border-b border-slate-800 pb-4">
+            <div>
+              <h2 className="text-xl font-bold text-white">ניהול שמות בזמן אמת (Firestore)</h2>
+              <p className="text-xs text-slate-400">סה"כ שמות במסד: {names.length}</p>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={exportToCSV} className="bg-slate-800 text-amber-300 text-xs px-3 py-2 rounded-xl border border-amber-500/30">📥 ייצוא Excel</button>
+              <button onClick={handlePrint} className="bg-[#E5B54F] text-black text-xs font-bold px-3 py-2 rounded-xl">🖨️ הדפסה לאוהל</button>
+              <button onClick={onBackToSite} className="bg-slate-800 text-slate-300 text-xs px-3 py-2 rounded-xl">חזרה לאתר ➔</button>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input 
+              type="text" 
+              value={searchQuery} 
+              onChange={e => setSearchQuery(e.target.value)} 
+              placeholder="חפש שם..." 
+              className="bg-slate-900 border border-slate-700 text-xs text-white p-2.5 rounded-xl flex-1"
+            />
+            <select value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)} className="bg-slate-900 border border-slate-700 text-xs text-amber-200 p-2.5 rounded-xl">
+              <option value="all">כל הקטגוריות</option>
+              <option value="ברכה ואיחול">ברכה ואיחול</option>
+              <option value="רפואה">רפואה</option>
+              <option value="זיווג">זיווג</option>
+              <option value="פרנסה">פרנסה</option>
+            </select>
+          </div>
+
+          <div className="overflow-x-auto bg-slate-950/60 rounded-xl border border-slate-800">
+            <table className="w-full text-xs text-right">
+              <thead>
+                <tr className="bg-slate-900 border-b border-slate-800 text-amber-200">
+                  <th className="p-3">#</th>
+                  <th className="p-3">שם מלא</th>
+                  <th className="p-3">שם האם</th>
+                  <th className="p-3">סוג בקשה</th>
+                  <th className="p-3">הערה</th>
+                  <th className="p-3">תאריך</th>
+                  <th className="p-3">סטטוס</th>
+                  <th className="p-3 text-center">פעולות</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredNames.map((n, idx) => (
+                  <tr key={n.id} className="border-b border-slate-800/50 hover:bg-slate-800/30">
+                    <td className="p-3 text-slate-500">{idx + 1}</td>
+                    <td className="p-3 font-bold text-white">{n.fullName}</td>
+                    <td className="p-3 text-amber-200">{n.motherName}</td>
+                    <td className="p-3"><span className="bg-amber-500/10 text-amber-300 px-2 py-0.5 rounded border border-amber-500/20">{n.requestType || 'כללי'}</span></td>
+                    <td className="p-3 text-slate-300">{n.note || '-'}</td>
+                    <td className="p-3 text-slate-400">{n.formattedDate || '-'}</td>
+                    <td className="p-3">{n.status === 'processed' ? '✅ נקרא' : '🕒 חדש'}</td>
+                    <td className="p-3 text-center flex justify-center gap-2">
+                      <button onClick={() => handleToggleStatus(n.id, n.status)} className="p-1 text-emerald-400 border border-emerald-800 rounded">✓</button>
+                      <button onClick={() => handleDelete(n.id, n.fullName)} className="p-1 text-red-400 border border-red-800 rounded">🗑️</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [currentView, setCurrentView] = useState(() => window.location.hash === '#admin' ? 'admin' : 'landing');
+      const [namesList, setNamesList] = useState([{ id: '1', name: '', motherName: '', requestType: 'ברכה ואיחול' }]);
+      const [personalRequest, setPersonalRequest] = useState('');
+      const [submittedData, setSubmittedData] = useState(null);
+      const [showSuccessModal, setShowSuccessModal] = useState(false);
+      const [isSubmitting, setIsSubmitting] = useState(false);
       const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
+      useEffect(() => {
+        const handleHash = () => setCurrentView(window.location.hash === '#admin' ? 'admin' : 'landing');
+        window.addEventListener('hashchange', handleHash);
+        return () => window.removeEventListener('hashchange', handleHash);
+      }, []);
 
       useEffect(() => {
         const updateTimer = () => {
@@ -74,17 +264,14 @@
           const nyCurrent = new Date(nyDateString);
           let target = new Date(nyCurrent);
           target.setHours(12, 0, 0, 0);
-
-          if (nyCurrent > target) {
-            target.setDate(target.getDate() + 1);
-          }
-
+          if (nyCurrent > target) target.setDate(target.getDate() + 1);
           const diff = target.getTime() - nyCurrent.getTime();
           if (diff > 0) {
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-            const minutes = Math.floor((diff / (1000 * 60)) % 60);
-            const seconds = Math.floor((diff / 1000) % 60);
-            setTimeLeft({ hours, minutes, seconds });
+            setTimeLeft({
+              hours: Math.floor(diff / (1000 * 60 * 60)),
+              minutes: Math.floor((diff / (1000 * 60)) % 60),
+              seconds: Math.floor((diff / 1000) % 60)
+            });
           }
         };
         updateTimer();
@@ -93,383 +280,160 @@
       }, []);
 
       const handleAddNameRow = () => {
-        setNamesList([
-          ...namesList,
-          { id: Date.now().toString(), name: '', motherName: '' }
-        ]);
+        setNamesList([...namesList, { id: Date.now().toString(), name: '', motherName: '', requestType: 'ברכה ואיחול' }]);
       };
 
       const handleRemoveNameRow = (id) => {
         if (namesList.length === 1) return;
-        setNamesList(namesList.filter((item) => item.id !== id));
+        setNamesList(namesList.filter(i => i.id !== id));
       };
 
       const handleNameChange = (id, field, value) => {
-        setNamesList(
-          namesList.map((item) => (item.id === id ? { ...item, [field]: value } : item))
-        );
+        setNamesList(namesList.map(i => i.id === id ? { ...i, [field]: value } : i));
       };
 
-      const handleSubmit = (e) => {
+      const handleSubmit = async (e) => {
         e.preventDefault();
+        const valid = namesList.filter(n => n.name.trim() !== '' && n.motherName.trim() !== '');
+        if (valid.length === 0) return alert('אנא מלא לפחות שם אחד ושם האם');
 
-        const validNames = namesList.filter((n) => n.name.trim() !== '' && n.motherName.trim() !== '');
-        if (validNames.length === 0) {
-          alert('אנא מלא לפחות שם אחד ושם האם');
-          return;
+        setIsSubmitting(true);
+        try {
+          for (const item of valid) {
+            await db.collection(NAMES_COLLECTION).add({
+              fullName: item.name.trim(),
+              motherName: item.motherName.trim(),
+              requestType: item.requestType || 'ברכה ואיחול',
+              note: personalRequest.trim(),
+              status: 'new',
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              formattedDate: new Date().toLocaleString('he-IL')
+            });
+          }
+
+          const sub = {
+            id: `770-${Math.floor(1000 + Math.random() * 9000)}`,
+            names: valid
+          };
+          setSubmittedData(sub);
+          setShowSuccessModal(true);
+
+          if (window.confetti) {
+            confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 }, colors: ['#E5B54F', '#F59E0B', '#FFFFFF'] });
+          }
+
+          setNamesList([{ id: '1', name: '', motherName: '', requestType: 'ברכה ואיחול' }]);
+          setPersonalRequest('');
+
+        } catch (err) {
+          console.error(err);
+          alert('שגיאה בשמירת השמות ב-Firestore. ודא שהגדרת Test Mode ב-Firebase Console.');
+        } finally {
+          setIsSubmitting(false);
         }
-
-        const newSubmission = {
-          id: `770-${Math.floor(1000 + Math.random() * 9000)}`,
-          submitterName: submitterName.trim() || validNames[0].name,
-          submitterPhone: submitterPhone.trim(),
-          personalRequest: personalRequest.trim(),
-          names: validNames,
-          date: new Date().toISOString()
-        };
-
-        setAllSubmissions([newSubmission, ...allSubmissions]);
-        setSubmittedData(newSubmission);
-        setShowSuccessModal(true);
-
-        if (window.confetti) {
-          window.confetti({
-            particleCount: 90,
-            spread: 70,
-            origin: { y: 0.6 },
-            colors: ['#E5B54F', '#F59E0B', '#FFFFFF']
-          });
-        }
       };
 
-      const getWhatsAppShareUrl = () => {
-        const text = encodeURIComponent(
-          `🍯 *אוהל להתחבר - ערב ראש השנה*\n` +
-          `רשמתי את שמי ושם משפחתי להזכרה על הציון הקדוש של הרבי מליובאוויטש בערב ראש השנה!\n\n` +
-          `גם אתם יכולים להעביר שמות בחינם לברכה והצלחה בקישור:\n` +
-          `${window.location.href}\n\n` +
-          `*כתיבה וחתימה טובה לשנה טובה ומתוקה!* 🍯`
-        );
-        return `https://wa.me/?text=${text}`;
-      };
-
-      const exportToCSV = () => {
-        let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-        csvContent += "מזהה,שם השולח,טלפון,שם פרטי,שם האם,בקשה אישית,תאריך\n";
-
-        allSubmissions.forEach(sub => {
-          sub.names.forEach(n => {
-            const row = [
-              sub.id,
-              `"${sub.submitterName}"`,
-              `"${sub.submitterPhone}"`,
-              `"${n.name}"`,
-              `"${n.motherName}"`,
-              `"${(sub.personalRequest || '').replace(/"/g, '""')}"`,
-              `"${new Date(sub.date).toLocaleString('he-IL')}"`
-            ].join(",");
-            csvContent += row + "\n";
-          });
-        });
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `ohel_names_${new Date().toISOString().slice(0,10)}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      };
+      if (currentView === 'admin') {
+        return <AdminDashboard onBackToSite={() => { window.location.hash = ''; setCurrentView('landing'); }} />;
+      }
 
       return (
-        <div className="w-full flex justify-center">
+        <div className="relative z-10 max-w-lg w-full text-center space-y-6 py-6 px-2 mx-auto flex flex-col items-center">
           
-          {/* Background Image of Ohel Queue - Visibly Stronger Opacity (40%) */}
-          <div className="fixed inset-0 pointer-events-none z-0">
-            <img 
-              src="./src/assets/ohel-queue.jpg" 
-              alt="תור האוהל הקדוש" 
-              className="w-full h-full object-cover object-center opacity-40 filter contrast-110 brightness-75 scale-105" 
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/85 via-[#050505]/70 to-[#050505]/90" />
-          </div>
-
-          {/* Main Centered Layout */}
-          <div className="relative z-10 max-w-lg w-full text-center space-y-6 py-6 px-2 mx-auto flex flex-col items-center justify-center">
+          {/* Floating Mechanical Clock Bottom Right */}
+          <div className="fixed bottom-4 right-4 z-40 bg-black/85 border border-[#E5B54F]/30 backdrop-blur-xl rounded-2xl p-3 shadow-2xl flex flex-col items-end text-right">
+            <div className="inline-flex items-center gap-1.5 text-[11px] text-amber-200/90 font-semibold mb-1.5">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              <span>נותרו עד 12:00 ניו יורק:</span>
+            </div>
             
-            {/* Floating Bottom Right Frameless Mechanical Split-Flap Clock */}
-            <div className="fixed bottom-4 right-4 z-40 bg-black/85 border border-[#E5B54F]/30 backdrop-blur-xl rounded-2xl p-3 shadow-2xl flex flex-col items-end text-right">
-              <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-amber-200/90 font-semibold mb-1.5 drop-shadow">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                <span>נותרו עד 12:00 ניו יורק:</span>
+            <div className="flex items-center gap-2" style={{ direction: 'ltr' }}>
+              <div className="flex flex-col items-center gap-0.5">
+                <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
+                  <div className="w-6 h-8 bg-[#222226] text-white font-bold text-sm rounded border border-slate-600 shadow flex items-center justify-center">{Math.floor(timeLeft.hours / 10)}</div>
+                  <div className="w-6 h-8 bg-[#222226] text-white font-bold text-sm rounded border border-slate-600 shadow flex items-center justify-center">{timeLeft.hours % 10}</div>
+                </div>
+                <span className="text-[10px] text-amber-200 font-bold">שעות</span>
               </div>
-              
-              {/* Ordered Units in LTR (Left: שעות | Middle: דקות | Right: שניות) */}
-              <div className="flex items-center gap-2 sm:gap-2.5" style={{ direction: 'ltr' }}>
-                
-                {/* שעות - Left */}
-                <div className="flex flex-col items-center gap-0.5">
-                  <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
-                    <div className="relative w-6 h-8 bg-gradient-to-b from-[#333338] via-[#222226] to-[#141416] text-white font-sans font-bold text-sm rounded border border-slate-600/70 shadow-lg flex items-center justify-center overflow-hidden">
-                      <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
-                      <span className="relative z-0 drop-shadow-sm">{Math.floor(timeLeft.hours / 10)}</span>
-                    </div>
-                    <div className="relative w-6 h-8 bg-gradient-to-b from-[#333338] via-[#222226] to-[#141416] text-white font-sans font-bold text-sm rounded border border-slate-600/70 shadow-lg flex items-center justify-center overflow-hidden">
-                      <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
-                      <span className="relative z-0 drop-shadow-sm">{timeLeft.hours % 10}</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-amber-200/90 font-bold">שעות</span>
+              <span className="text-[#E5B54F] font-bold text-sm pb-3">:</span>
+              <div className="flex flex-col items-center gap-0.5">
+                <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
+                  <div className="w-6 h-8 bg-[#222226] text-white font-bold text-sm rounded border border-slate-600 shadow flex items-center justify-center">{Math.floor(timeLeft.minutes / 10)}</div>
+                  <div className="w-6 h-8 bg-[#222226] text-white font-bold text-sm rounded border border-slate-600 shadow flex items-center justify-center">{timeLeft.minutes % 10}</div>
                 </div>
-
-                <span className="text-[#E5B54F] font-bold text-sm pb-3 animate-pulse">:</span>
-
-                {/* דקות - Middle */}
-                <div className="flex flex-col items-center gap-0.5">
-                  <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
-                    <div className="relative w-6 h-8 bg-gradient-to-b from-[#333338] via-[#222226] to-[#141416] text-white font-sans font-bold text-sm rounded border border-slate-600/70 shadow-lg flex items-center justify-center overflow-hidden">
-                      <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
-                      <span className="relative z-0 drop-shadow-sm">{Math.floor(timeLeft.minutes / 10)}</span>
-                    </div>
-                    <div className="relative w-6 h-8 bg-gradient-to-b from-[#333338] via-[#222226] to-[#141416] text-white font-sans font-bold text-sm rounded border border-slate-600/70 shadow-lg flex items-center justify-center overflow-hidden">
-                      <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
-                      <span className="relative z-0 drop-shadow-sm">{timeLeft.minutes % 10}</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-amber-200/90 font-bold">דקות</span>
+                <span className="text-[10px] text-amber-200 font-bold">דקות</span>
+              </div>
+              <span className="text-[#E5B54F] font-bold text-sm pb-3">:</span>
+              <div className="flex flex-col items-center gap-0.5">
+                <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
+                  <div className="w-6 h-8 bg-[#222226] text-white font-bold text-sm rounded border border-slate-600 shadow flex items-center justify-center">{Math.floor(timeLeft.seconds / 10)}</div>
+                  <div className="w-6 h-8 bg-[#222226] text-white font-bold text-sm rounded border border-slate-600 shadow flex items-center justify-center">{timeLeft.seconds % 10}</div>
                 </div>
-
-                <span className="text-[#E5B54F] font-bold text-sm pb-3 animate-pulse">:</span>
-
-                {/* שניות - Right */}
-                <div className="flex flex-col items-center gap-0.5">
-                  <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
-                    <div className="relative w-6 h-8 bg-gradient-to-b from-[#333338] via-[#222226] to-[#141416] text-white font-sans font-bold text-sm rounded border border-slate-600/70 shadow-lg flex items-center justify-center overflow-hidden">
-                      <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
-                      <span className="relative z-0 drop-shadow-sm">{Math.floor(timeLeft.seconds / 10)}</span>
-                    </div>
-                    <div className="relative w-6 h-8 bg-gradient-to-b from-[#333338] via-[#222226] to-[#141416] text-white font-sans font-bold text-sm rounded border border-slate-600/70 shadow-lg flex items-center justify-center overflow-hidden">
-                      <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/90 z-10 border-b border-white/10" />
-                      <span className="relative z-0 drop-shadow-sm">{timeLeft.seconds % 10}</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-amber-200/90 font-bold">שניות</span>
-                </div>
-
+                <span className="text-[10px] text-amber-200 font-bold">שניות</span>
               </div>
             </div>
-
-            {/* Main Header - Clean & Centered */}
-            <div className="w-full text-center space-y-1 flex items-center justify-center">
-              <h1 className="font-heading font-black text-2xl min-[400px]:text-3xl sm:text-4xl md:text-5xl text-white tracking-tight drop-shadow-lg whitespace-nowrap text-center mx-auto">
-                שליחת שמות לאוהל הקדוש
-              </h1>
-            </div>
-
-            {/* Announcement Text Paragraph - Completely Centered & Frameless */}
-            <div className="text-sm sm:text-base text-slate-100 leading-relaxed text-center space-y-3 px-2 mx-auto w-full flex flex-col items-center justify-center">
-              <p className="drop-shadow-md font-normal text-center max-w-md mx-auto">
-                בהתאם למנהג הרבי לבקר באוהל הק׳ בערב ראש השנה, ערוץ <strong className="text-[#E5B54F] font-bold">להתחבר ל-770</strong> נותן שירות מיוחד לאלו שלא מוכנים לוותר על מנהג החסידים מדורי דורות, אך אינם יכולים לבצע זאת בפועל מפאת המרחק הגשמי.
-              </p>
-              <p className="text-amber-200 font-semibold text-base sm:text-lg drop-shadow-md text-center max-w-md mx-auto">
-                כיתבו את שמכם ושם אמכם בטופס, וצוות הערוץ ידאג להזכיר אתכם על הציון הק׳ לברכה והצלחה.
-              </p>
-            </div>
-
-            {/* Form - Sleek, Frameless, Completely Centered */}
-            <form onSubmit={handleSubmit} className="w-full space-y-5 pt-2 text-center flex flex-col items-center justify-center">
-              
-              <div className="space-y-4 w-full">
-                {namesList.map((item, index) => (
-                  <div key={item.id} className="space-y-2 text-center relative w-full flex flex-col items-center">
-                    <div className="w-full text-center font-bold text-[#E5B54F] text-xs sm:text-sm relative flex justify-center items-center">
-                      <span>שם להזכרה #{index + 1}</span>
-                      {namesList.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveNameRow(item.id)}
-                          className="text-rose-400 hover:text-rose-300 text-xs font-normal absolute left-0"
-                        >
-                          ✕ הסר
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-                      <input
-                        type="text"
-                        required
-                        placeholder="שם פרטי ומשפחה"
-                        value={item.name}
-                        onChange={(e) => handleNameChange(item.id, 'name', e.target.value)}
-                        className="w-full bg-black/40 border border-slate-700/80 focus:border-[#E5B54F] rounded-xl px-4 py-3.5 text-sm sm:text-base text-white placeholder:text-slate-400 text-center focus:outline-none backdrop-blur-md transition-all shadow-lg"
-                      />
-                      <input
-                        type="text"
-                        required
-                        placeholder="שם האם (בן/בת)"
-                        value={item.motherName}
-                        onChange={(e) => handleNameChange(item.id, 'motherName', e.target.value)}
-                        className="w-full bg-black/40 border border-slate-700/80 focus:border-[#E5B54F] rounded-xl px-4 py-3.5 text-sm sm:text-base text-white placeholder:text-slate-400 text-center focus:outline-none backdrop-blur-md transition-all shadow-lg"
-                      />
-                    </div>
-                  </div>
-                ))}
-
-                <button
-                  type="button"
-                  onClick={handleAddNameRow}
-                  className="text-[11px] sm:text-xs text-[#E5B54F] hover:underline flex items-center justify-center gap-1 mx-auto font-medium py-1 px-3.5 rounded-full border border-amber-500/30 bg-black/40 backdrop-blur-md shadow-sm transition-all hover:bg-amber-500/10"
-                >
-                  + הוסף שם נוסף (בן/בת משפחה)
-                </button>
-              </div>
-
-              <div className="space-y-3.5 pt-1 text-center w-full">
-                <textarea
-                  rows={2}
-                  placeholder="בקשת ברכה מפורטת / פ״ן (אופציונלי)"
-                  value={personalRequest}
-                  onChange={(e) => setPersonalRequest(e.target.value)}
-                  className="w-full bg-black/40 border border-slate-700/80 focus:border-[#E5B54F] rounded-xl p-4 text-sm sm:text-base text-white placeholder:text-slate-400 focus:outline-none resize-none text-center backdrop-blur-md transition-all shadow-lg"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-4 rounded-xl bg-[#E5B54F] hover:bg-[#d4a33d] text-slate-950 font-black text-lg sm:text-xl shadow-2xl transition-all cursor-pointer mt-3"
-              >
-                שלח שמות לאוהל הקדוש 🍯
-              </button>
-
-            </form>
-
-            {/* WhatsApp Channel Invitation Box - Compact & Sleek */}
-            <a
-              href="https://whatsapp.com/channel/0029VayCzKY9mrGXUlgKji0m"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="max-w-sm w-full mx-auto p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/40 hover:border-emerald-400 backdrop-blur-md flex items-center justify-between gap-3 text-right transition-all group shadow-lg hover:bg-emerald-900/50 mt-1"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-base font-bold flex-shrink-0 group-hover:scale-105 transition-transform">
-                  💬
-                </div>
-                <div className="text-right">
-                  <div className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors">
-                    לעקוב אחרי ערוץ להתחבר ל-770 ב-WhatsApp?
-                  </div>
-                  <div className="text-[10px] text-emerald-200/80 font-medium">
-                    לחצו כאן להצטרפות לערוץ
-                  </div>
-                </div>
-              </div>
-              <span className="text-emerald-400 text-[11px] font-bold bg-emerald-500/20 px-2.5 py-1 rounded-full border border-emerald-500/30 whitespace-nowrap">
-                הצטרף ➔
-              </span>
-            </a>
-
-            {/* Footer info */}
-            <div className="pt-2 text-center w-full flex justify-center items-center">
-              <span className="text-xs sm:text-sm text-amber-200/90 font-bold text-center mx-auto">
-                כתיבה וחתימה טובה לשנה טובה ומתוקה! 🍯
-              </span>
-            </div>
-
           </div>
 
-          {/* Modals */}
-          {showSuccessModal && submittedData && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-              <div className="bg-[#121620] border border-[#E5B54F]/40 max-w-sm w-full rounded-3xl p-6 text-center space-y-4 shadow-2xl">
-                <div className="w-12 h-12 rounded-full bg-[#E5B54F]/20 text-[#E5B54F] mx-auto flex items-center justify-center text-xl font-bold">
-                  ✓
-                </div>
-                <div className="space-y-1">
-                  <span className="text-[10px] font-mono text-[#E5B54F]">אישור מס׳ {submittedData.id}</span>
-                  <h3 className="font-bold text-lg text-white">השמות נקלטו בהצלחה</h3>
-                  <p className="text-xs text-slate-300">
-                    צוות ערוץ <strong className="text-[#E5B54F]">להתחבר ל-770</strong> ידאג להזכיר את השמות על הציון הקדוש.
-                  </p>
-                </div>
+          <h1 className="font-heading font-black text-3xl sm:text-4xl text-white">
+            שליחת שמות לאוהל הקדוש
+          </h1>
 
-                <div className="bg-black/60 rounded-xl p-3 text-right space-y-1 text-xs">
-                  {submittedData.names.map((n, i) => (
-                    <div key={i} className="text-slate-200">
-                      • <strong>{n.name}</strong> ({n.motherName})
-                    </div>
-                  ))}
-                </div>
+          <div className="text-sm text-slate-100 space-y-2 text-center">
+            <p>בהתאם למנהג הרבי לבקר באוהל הק׳ בערב ראש השנה, ערוץ <strong className="text-[#E5B54F]">להתחבר ל-770</strong> נותן שירות מיוחד להעברת שמות להזכרה לברכה והצלחה.</p>
+          </div>
 
-                <div className="space-y-2 pt-2">
-                  <a
-                    href={getWhatsAppShareUrl()}
-                    target="_blank"
-                    className="block w-full py-2.5 bg-emerald-600 text-white font-bold text-xs rounded-xl"
-                  >
-                    שתף ב-WhatsApp
-                  </a>
-                  <button
-                    onClick={() => setShowSuccessModal(false)}
-                    className="w-full py-2 bg-slate-800 text-slate-400 text-xs rounded-xl"
-                  >
-                    סגור
-                  </button>
+          <form onSubmit={handleSubmit} className="w-full space-y-4 text-center">
+            {namesList.map((item, index) => (
+              <div key={item.id} className="bg-black/30 border border-slate-800 p-3 rounded-2xl space-y-2">
+                <div className="flex justify-between text-xs font-bold text-[#E5B54F]">
+                  <span className="mx-auto">שם להזכרה #{index + 1}</span>
+                  {namesList.length > 1 && (
+                    <button type="button" onClick={() => handleRemoveNameRow(item.id)} className="text-rose-400 text-xs">✕</button>
+                  )}
                 </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <input type="text" required placeholder="שם פרטי ומשפחה" value={item.name} onChange={e => handleNameChange(item.id, 'name', e.target.value)} className="bg-black/50 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white text-center" />
+                  <input type="text" required placeholder="שם האם (בן/בת)" value={item.motherName} onChange={e => handleNameChange(item.id, 'motherName', e.target.value)} className="bg-black/50 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white text-center" />
+                </div>
+                <select value={item.requestType} onChange={e => handleNameChange(item.id, 'requestType', e.target.value)} className="w-full bg-slate-900 border border-slate-700 text-xs text-amber-200 rounded-xl p-2 text-center">
+                  <option value="ברכה ואיחול">סוג בקשה: ברכה ואיחול</option>
+                  <option value="רפואה">סוג בקשה: רפואה</option>
+                  <option value="זיווג">סוג בקשה: זיווג הגון</option>
+                  <option value="פרנסה">סוג בקשה: פרנסה טובה</option>
+                </select>
               </div>
-            </div>
-          )}
+            ))}
 
-          {showAdminModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-              <div className="bg-[#121620] border border-slate-800 max-w-2xl w-full rounded-3xl p-6 text-center space-y-4">
-                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                  <h3 className="font-bold text-white text-sm">פנל ניהול - להתחבר ל-770</h3>
-                  <button onClick={() => setShowAdminModal(false)} className="text-slate-500 text-xs">✕ סגור</button>
-                </div>
+            <button type="button" onClick={handleAddNameRow} className="text-xs text-[#E5B54F] border border-amber-500/30 bg-black/40 px-3 py-1 rounded-full">
+              + הוסף שם נוסף
+            </button>
 
-                {!isAdminAuthenticated ? (
-                  <div className="py-8 space-y-3 max-w-xs mx-auto">
-                    <p className="text-xs text-slate-400">הכנס סיסמת צוות הערוץ (סיסמה: 770)</p>
-                    <input
-                      type="password"
-                      placeholder="סיסמה"
-                      value={adminPassword}
-                      onChange={(e) => setAdminPassword(e.target.value)}
-                      className="w-full bg-[#0B0E14] border border-slate-800 rounded-xl px-4 py-2 text-center text-white text-xs"
-                    />
-                    <button
-                      onClick={() => {
-                        if (adminPassword === '770') setIsAdminAuthenticated(true);
-                        else alert('סיסמה שגויה');
-                      }}
-                      className="w-full py-2 bg-[#E5B54F] text-slate-950 font-bold text-xs rounded-xl"
-                    >
-                      כניסה
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-4 text-right">
-                    <button
-                      onClick={exportToCSV}
-                      className="py-2 px-4 bg-[#E5B54F] text-slate-950 font-bold text-xs rounded-xl"
-                    >
-                      ייצא קובץ CSV להדפסה
-                    </button>
-                    <div className="max-h-60 overflow-auto bg-[#0B0E14] rounded-xl border border-slate-800 p-3 text-xs">
-                      {allSubmissions.length === 0 ? (
-                        <p className="text-slate-500 text-center">טרם נרשמו שמות</p>
-                      ) : (
-                        allSubmissions.map((sub, idx) => (
-                          <div key={idx} className="border-b border-slate-800/80 py-2">
-                            <strong className="text-[#E5B54F]">{sub.submitterName}</strong> ({sub.submitterPhone}): 
-                            {sub.names.map(n => ` ${n.name} בן/בת ${n.motherName}`).join(', ')}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                )}
+            <textarea rows={2} placeholder="בקשת ברכה מפורטת / פ״ן (אופציונלי)" value={personalRequest} onChange={e => setPersonalRequest(e.target.value)} className="w-full bg-black/40 border border-slate-700 rounded-xl p-3 text-sm text-white text-center" />
+
+            <button type="submit" disabled={isSubmitting} className="w-full py-3.5 rounded-xl bg-[#E5B54F] hover:bg-[#d4a33d] text-black font-black text-lg shadow-xl">
+              {isSubmitting ? 'שומר ב-Firebase...' : 'שלח שמות לאוהל הקדוש 🍯'}
+            </button>
+          </form>
+
+          <a href="https://whatsapp.com/channel/0029VayCzKY9mrGXUlgKji0m" target="_blank" rel="noopener noreferrer" className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-xs text-emerald-300 flex items-center justify-between w-full">
+            <span>💬 לעקוב אחרי ערוץ להתחבר ל-770 ב-WhatsApp?</span>
+            <span className="bg-emerald-500/20 px-2 py-1 rounded-full font-bold">הצטרף ➔</span>
+          </a>
+
+          <div className="pt-2 text-center flex flex-col items-center gap-1">
+            <span className="text-xs text-amber-200 font-bold">כתיבה וחתימה טובה לשנה טובה ומתוקה! 🍯</span>
+            <button onClick={() => { window.location.hash = '#admin'; setCurrentView('admin'); }} className="text-[11px] text-slate-500 hover:text-amber-300">
+              🔒 כניסת צוות ניהול (Admin)
+            </button>
+          </div>
+
+          {showSuccessModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90">
+              <div className="bg-[#121620] border border-[#E5B54F] max-w-sm w-full rounded-2xl p-6 text-center space-y-3">
+                <div className="text-[#E5B54F] text-3xl font-bold">✓</div>
+                <h3 className="text-lg font-bold text-white">השמות נרשמו בהצלחה ב-Firebase!</h3>
+                <p className="text-xs text-slate-300">צוות ערוץ להתחבר ל-770 ידאג להזכיר את השמות בציון הקדוש.</p>
+                <button onClick={() => setShowSuccessModal(false)} className="w-full py-2 bg-slate-800 text-slate-300 text-xs rounded-xl">סגור</button>
               </div>
             </div>
           )}

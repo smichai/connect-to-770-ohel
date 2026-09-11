@@ -2,15 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
   Trash2, 
-  CheckCircle2, 
-  Clock
+  Clock, 
+  ShieldCheck 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import ohelImage from './assets/ohel-queue.jpg';
+import AdminDashboard from './components/AdminDashboard';
+import { addNameSubmission } from './firebase';
 
 export default function App() {
+  const [currentView, setCurrentView] = useState(() => {
+    return window.location.hash === '#admin' ? 'admin' : 'landing';
+  });
+
   const [namesList, setNamesList] = useState([
-    { id: '1', name: '', motherName: '' }
+    { id: '1', name: '', motherName: '', requestType: 'ברכה ואיחול' }
   ]);
 
   const [submitterName, setSubmitterName] = useState('');
@@ -19,21 +25,20 @@ export default function App() {
 
   const [submittedData, setSubmittedData] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showAdminModal, setShowAdminModal] = useState(false);
-  const [adminPassword, setAdminPassword] = useState('');
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [allSubmissions, setAllSubmissions] = useState(() => {
-    const saved = localStorage.getItem('ohel_submissions_770');
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { return []; }
-    }
-    return [];
-  });
-
+  // Listen to hash changes (e.g. #admin)
   useEffect(() => {
-    localStorage.setItem('ohel_submissions_770', JSON.stringify(allSubmissions));
-  }, [allSubmissions]);
+    const handleHashChange = () => {
+      if (window.location.hash === '#admin') {
+        setCurrentView('admin');
+      } else if (window.location.hash === '' || window.location.hash === '#home') {
+        setCurrentView('landing');
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   // Real live countdown timer to NY 12:00 PM deadline
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
@@ -65,7 +70,7 @@ export default function App() {
   const handleAddNameRow = () => {
     setNamesList([
       ...namesList,
-      { id: Date.now().toString(), name: '', motherName: '' }
+      { id: Date.now().toString(), name: '', motherName: '', requestType: 'ברכה ואיחול' }
     ]);
   };
 
@@ -80,7 +85,7 @@ export default function App() {
     );
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const validNames = namesList.filter((n) => n.name.trim() !== '' && n.motherName.trim() !== '');
@@ -89,26 +94,50 @@ export default function App() {
       return;
     }
 
-    const newSubmission = {
-      id: `770-${Math.floor(1000 + Math.random() * 9000)}`,
-      submitterName: submitterName.trim() || validNames[0].name,
-      submitterPhone: submitterPhone.trim(),
-      personalRequest: personalRequest.trim(),
-      names: validNames,
-      date: new Date().toISOString()
-    };
+    setIsSubmitting(true);
 
-    setAllSubmissions([newSubmission, ...allSubmissions]);
-    setSubmittedData(newSubmission);
-    setShowSuccessModal(true);
+    try {
+      // Save each name directly to Google Firebase Firestore!
+      for (const item of validNames) {
+        await addNameSubmission({
+          fullName: item.name.trim(),
+          motherName: item.motherName.trim(),
+          requestType: item.requestType || 'ברכה ואיחול',
+          note: personalRequest.trim()
+        });
+      }
 
-    if (window.confetti) {
-      confetti({
-        particleCount: 90,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#E5B54F', '#F59E0B', '#FFFFFF']
-      });
+      const newSubmission = {
+        id: `770-${Math.floor(1000 + Math.random() * 9000)}`,
+        submitterName: submitterName.trim() || validNames[0].name,
+        submitterPhone: submitterPhone.trim(),
+        personalRequest: personalRequest.trim(),
+        names: validNames,
+        date: new Date().toISOString()
+      };
+
+      setSubmittedData(newSubmission);
+      setShowSuccessModal(true);
+
+      // Trigger confetti celebration
+      if (window.confetti) {
+        confetti({
+          particleCount: 90,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#E5B54F', '#F59E0B', '#FFFFFF']
+        });
+      }
+
+      // Reset form
+      setNamesList([{ id: '1', name: '', motherName: '', requestType: 'ברכה ואיחול' }]);
+      setPersonalRequest('');
+
+    } catch (err) {
+      console.error("Submission Error:", err);
+      alert('אירעה שגיאה בשמירת השמות. נסה שנית.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -117,42 +146,26 @@ export default function App() {
       `🍯 *אוהל להתחבר - ערב ראש השנה*\n` +
       `רשמתי את שמי ושם משפחתי להזכרה על הציון הקדוש של הרבי מליובאוויטש בערב ראש השנה!\n\n` +
       `גם אתם יכולים להעביר שמות בחינם לברכה והצלחה בקישור:\n` +
-      `${window.location.href}\n\n` +
+      `${window.location.origin}\n\n` +
       `*כתיבה וחתימה טובה לשנה טובה ומתוקה!* 🍯`
     );
     return `https://wa.me/?text=${text}`;
   };
 
-  const exportToCSV = () => {
-    let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-    csvContent += "מזהה,שם השולח,טלפון,שם פרטי,שם האם,בקשה אישית,תאריך\n";
-
-    allSubmissions.forEach(sub => {
-      sub.names.forEach(n => {
-        const row = [
-          sub.id,
-          `"${sub.submitterName}"`,
-          `"${sub.submitterPhone}"`,
-          `"${n.name}"`,
-          `"${n.motherName}"`,
-          `"${(sub.personalRequest || '').replace(/"/g, '""')}"`,
-          `"${new Date(sub.date).toLocaleString('he-IL')}"`
-        ].join(",");
-        csvContent += row + "\n";
-      });
-    });
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `ohel_names_${new Date().toISOString().slice(0,10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  // Render Admin View
+  if (currentView === 'admin') {
+    return (
+      <AdminDashboard 
+        onBackToSite={() => {
+          window.location.hash = '';
+          setCurrentView('landing');
+        }} 
+      />
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-[#050505] text-slate-100 flex items-center justify-center p-4 relative font-sans selection:bg-[#E5B54F] selection:text-black">
+    <div className="min-h-screen bg-[#050505] text-slate-100 flex items-center justify-center p-4 relative font-sans selection:bg-[#E5B54F] selection:text-black" dir="rtl">
       
       {/* Background Image of Ohel Queue - Visibly Stronger Opacity (35%) */}
       <div className="fixed inset-0 pointer-events-none z-0">
@@ -251,14 +264,14 @@ export default function App() {
           
           <div className="space-y-4">
             {namesList.map((item, index) => (
-              <div key={item.id} className="space-y-2 text-center relative">
+              <div key={item.id} className="space-y-2 text-center relative bg-black/30 border border-slate-800/80 p-3 rounded-2xl">
                 <div className="flex items-center justify-between text-xs sm:text-sm px-1 font-bold text-[#E5B54F]">
                   <span className="mx-auto">שם להזכרה #{index + 1}</span>
                   {namesList.length > 1 && (
                     <button
                       type="button"
                       onClick={() => handleRemoveNameRow(item.id)}
-                      className="text-rose-400 hover:text-rose-300 text-xs font-normal absolute left-1 top-0"
+                      className="text-rose-400 hover:text-rose-300 text-xs font-normal absolute left-3 top-3"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -272,7 +285,7 @@ export default function App() {
                     placeholder="שם פרטי ומשפחה"
                     value={item.name}
                     onChange={(e) => handleNameChange(item.id, 'name', e.target.value)}
-                    className="w-full bg-black/40 border border-slate-700/80 focus:border-[#E5B54F] rounded-xl px-4 py-3.5 text-sm sm:text-base text-white placeholder-slate-400 text-center focus:outline-none backdrop-blur-md transition-all shadow-lg"
+                    className="w-full bg-black/50 border border-slate-700/80 focus:border-[#E5B54F] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-400 text-center focus:outline-none backdrop-blur-md transition-all shadow-lg"
                   />
                   <input
                     type="text"
@@ -280,16 +293,33 @@ export default function App() {
                     placeholder="שם האם (בן/בת)"
                     value={item.motherName}
                     onChange={(e) => handleNameChange(item.id, 'motherName', e.target.value)}
-                    className="w-full bg-black/40 border border-slate-700/80 focus:border-[#E5B54F] rounded-xl px-4 py-3.5 text-sm sm:text-base text-white placeholder-slate-400 text-center focus:outline-none backdrop-blur-md transition-all shadow-lg"
+                    className="w-full bg-black/50 border border-slate-700/80 focus:border-[#E5B54F] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-400 text-center focus:outline-none backdrop-blur-md transition-all shadow-lg"
                   />
                 </div>
+
+                {/* Category selector */}
+                <div className="pt-1">
+                  <select
+                    value={item.requestType}
+                    onChange={(e) => handleNameChange(item.id, 'requestType', e.target.value)}
+                    className="w-full bg-slate-900/90 border border-slate-700 text-xs text-amber-200/90 rounded-xl py-2 px-3 text-center focus:border-[#E5B54F] outline-none"
+                  >
+                    <option value="ברכה ואיחול">סוג בקשה: ברכה ואיחול</option>
+                    <option value="רפואה">סוג בקשה: רפואה</option>
+                    <option value="זיווג">סוג בקשה: זיווג הגון</option>
+                    <option value="פרנסה">סוג בקשה: פרנסה טובה</option>
+                    <option value="נחת מהילדים">סוג בקשה: נחת מהילדים</option>
+                    <option value="כללי">סוג בקשה: כללי</option>
+                  </select>
+                </div>
+
               </div>
             ))}
 
             <button
               type="button"
               onClick={handleAddNameRow}
-              className="text-[11px] sm:text-xs text-[#E5B54F] hover:underline flex items-center justify-center gap-1 mx-auto font-medium py-1 px-3.5 rounded-full border border-amber-500/30 bg-black/40 backdrop-blur-md shadow-sm transition-all hover:bg-amber-500/10"
+              className="text-[11px] sm:text-xs text-[#E5B54F] hover:underline flex items-center justify-center gap-1 mx-auto font-medium py-1.5 px-4 rounded-full border border-amber-500/30 bg-black/40 backdrop-blur-md shadow-sm transition-all hover:bg-amber-500/10"
             >
               <Plus size={13} />
               <span>הוסף שם נוסף (בן/בת משפחה)</span>
@@ -308,9 +338,10 @@ export default function App() {
 
           <button
             type="submit"
-            className="w-full py-4 rounded-xl bg-[#E5B54F] hover:bg-[#d4a33d] text-slate-950 font-black text-lg sm:text-xl shadow-2xl transition-all cursor-pointer mt-3"
+            disabled={isSubmitting}
+            className="w-full py-4 rounded-xl bg-[#E5B54F] hover:bg-[#d4a33d] disabled:opacity-50 text-slate-950 font-black text-lg sm:text-xl shadow-2xl transition-all cursor-pointer mt-3"
           >
-            שלח שמות לאוהל הקדוש 🍯
+            {isSubmitting ? 'שומר ב-Firebase...' : 'שלח שמות לאוהל הקדוש 🍯'}
           </button>
 
         </form>
@@ -340,18 +371,30 @@ export default function App() {
           </span>
         </a>
 
-        {/* Footer info */}
-        <div className="pt-2 text-center w-full flex justify-center items-center">
-          <span className="text-xs sm:text-sm text-amber-200/90 font-bold text-center mx-auto">
+        {/* Footer info & Admin link */}
+        <div className="pt-2 text-center w-full flex flex-col justify-center items-center gap-2">
+          <span className="text-xs sm:text-sm text-amber-200/90 font-bold text-center">
             כתיבה וחתימה טובה לשנה טובה ומתוקה! 🍯
           </span>
+          
+          {/* Admin Link Button */}
+          <button 
+            onClick={() => {
+              window.location.hash = '#admin';
+              setCurrentView('admin');
+            }}
+            className="text-[11px] text-slate-500 hover:text-amber-300 transition flex items-center gap-1 mt-2"
+          >
+            <ShieldCheck size={12} />
+            <span>כניסת צוות ניהול (Admin)</span>
+          </button>
         </div>
 
       </div>
 
       {/* Confirmation Modal */}
       {showSuccessModal && submittedData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md" dir="rtl">
           <div className="bg-[#121620] border border-[#E5B54F]/40 max-w-sm w-full rounded-3xl p-6 text-center space-y-4 shadow-2xl">
             
             <div className="w-12 h-12 rounded-full bg-[#E5B54F]/20 text-[#E5B54F] mx-auto flex items-center justify-center text-xl font-bold">
@@ -361,17 +404,17 @@ export default function App() {
             <div className="space-y-1">
               <span className="text-[10px] font-mono text-[#E5B54F]">אישור מס׳ {submittedData.id}</span>
               <h3 className="font-bold text-lg text-white">
-                השמות נקלטו בהצלחה
+                השמות נרשמו בהצלחה ב-Database
               </h3>
               <p className="text-xs text-slate-300">
                 צוות ערוץ <strong className="text-[#E5B54F]">להתחבר ל-770</strong> ידאג להזכיר את השמות על הציון הקדוש.
               </p>
             </div>
 
-            <div className="bg-black/60 rounded-xl p-3 text-right space-y-1 text-xs">
+            <div className="bg-black/60 rounded-xl p-3 text-right space-y-1 text-xs border border-slate-800">
               {submittedData.names.map((n, i) => (
                 <div key={i} className="text-slate-200">
-                  • <strong>{n.name}</strong> ({n.motherName})
+                  • <strong>{n.name}</strong> ({n.motherName}) <span className="text-[10px] text-amber-200/70">[{n.requestType || 'ברכה'}]</span>
                 </div>
               ))}
             </div>
@@ -394,61 +437,6 @@ export default function App() {
               </button>
             </div>
 
-          </div>
-        </div>
-      )}
-
-      {/* Admin Panel */}
-      {showAdminModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-          <div className="bg-[#121620] border border-slate-800 max-w-2xl w-full rounded-3xl p-6 text-center space-y-4">
-            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-              <h3 className="font-bold text-white text-sm">פנל ניהול - להתחבר ל-770</h3>
-              <button onClick={() => setShowAdminModal(false)} className="text-slate-500 text-xs">✕ סגור</button>
-            </div>
-
-            {!isAdminAuthenticated ? (
-              <div className="py-8 space-y-3 max-w-xs mx-auto">
-                <p className="text-xs text-slate-400">הכנס סיסמת צוות הערוץ (סיסמה: 770)</p>
-                <input
-                  type="password"
-                  placeholder="סיסמה"
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  className="w-full bg-[#0B0E14] border border-slate-800 rounded-xl px-4 py-2 text-center text-white text-xs"
-                />
-                <button
-                  onClick={() => {
-                    if (adminPassword === '770') setIsAdminAuthenticated(true);
-                    else alert('סיסמה שגויה');
-                  }}
-                  className="w-full py-2 bg-[#E5B54F] text-slate-950 font-bold text-xs rounded-xl"
-                >
-                  כניסה
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4 text-right">
-                <button
-                  onClick={exportToCSV}
-                  className="py-2 px-4 bg-[#E5B54F] text-slate-950 font-bold text-xs rounded-xl"
-                >
-                  ייצא קובץ CSV להדפסה
-                </button>
-                <div className="max-h-60 overflow-auto bg-[#0B0E14] rounded-xl border border-slate-800 p-3 text-xs">
-                  {allSubmissions.length === 0 ? (
-                    <p className="text-slate-500 text-center">טרם נרשמו שמות</p>
-                  ) : (
-                    allSubmissions.map((sub, idx) => (
-                      <div key={idx} className="border-b border-slate-800/80 py-2">
-                        <strong className="text-[#E5B54F]">{sub.submitterName}</strong> ({sub.submitterPhone}): 
-                        {sub.names.map(n => ` ${n.name} בן/בת ${n.motherName}`).join(', ')}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}
