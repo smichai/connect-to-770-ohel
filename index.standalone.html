@@ -338,11 +338,11 @@
       }
 
       return (
-        <div className="relative z-10 max-w-lg w-full text-center space-y-6 py-6 px-2 mx-auto flex flex-col items-center">
+        <div className="relative z-10 max-w-xl w-full text-center space-y-6 py-8 px-2 mx-auto flex flex-col items-center justify-center my-auto">
           
-          {/* Floating Mechanical Clock Bottom Right */}
-          <div className="fixed bottom-4 right-4 z-40 bg-black/85 border border-[#E5B54F]/30 backdrop-blur-xl rounded-2xl p-3 shadow-2xl flex flex-col items-end text-right">
-            <div className="inline-flex items-center gap-1.5 text-[11px] text-amber-200/90 font-semibold mb-1.5">
+          {/* Floating Mechanical Clock Bottom Right - Frameless (No Box Container) */}
+          <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end text-right drop-shadow-2xl">
+            <div className="inline-flex items-center gap-1.5 text-[11px] text-amber-200/90 font-semibold mb-1.5 drop-shadow-md">
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
               <span>נותרו עד 12:00 ניו יורק:</span>
             </div>
@@ -374,26 +374,31 @@
             </div>
           </div>
 
-          <h1 className="font-heading font-black text-3xl sm:text-4xl text-white">
-            שליחת שמות לאוהל הקדוש
-          </h1>
-
-          <div className="text-sm text-slate-100 space-y-2 text-center">
-            <p>בהתאם למנהג הרבי לבקר באוהל הק׳ בערב ראש השנה, ערוץ <strong className="text-[#E5B54F]">להתחבר ל-770</strong> נותן שירות מיוחד להעברת שמות להזכרה לברכה והצלחה.</p>
+          <div className="w-full text-center space-y-1 mx-auto flex flex-col items-center justify-center">
+            <h1 className="font-heading font-black text-2xl min-[400px]:text-3xl sm:text-4xl md:text-5xl text-white tracking-tight drop-shadow-lg text-center mx-auto">
+              שליחת שמות לאוהל הקדוש
+            </h1>
           </div>
 
-          <form onSubmit={handleSubmit} className="w-full space-y-4 text-center">
+          <div className="text-sm sm:text-base text-slate-100 space-y-3 text-center mx-auto max-w-lg">
+            <p className="drop-shadow-md text-center mx-auto">בהתאם למנהג הרבי לבקר באוהל הק׳ בערב ראש השנה, ערוץ <strong className="text-[#E5B54F]">להתחבר ל-770</strong> נותן שירות מיוחד להעברת שמות להזכרה לברכה והצלחה.</p>
+            <p className="text-amber-200 font-semibold text-base sm:text-lg drop-shadow-md text-center mx-auto">
+              כיתבו את שמכם ושם אמכם בטופס, וצוות הערוץ ידאג להזכיר אתכם על הציון הק׳ לברכה והצלחה.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto space-y-4 text-center flex flex-col items-center">
             {namesList.map((item, index) => (
-              <div key={item.id} className="bg-black/30 border border-slate-800 p-3 rounded-2xl space-y-2">
+              <div key={item.id} className="w-full bg-black/30 border border-slate-800 p-3.5 rounded-2xl space-y-2 text-center">
                 <div className="flex justify-between text-xs font-bold text-[#E5B54F]">
-                  <span className="mx-auto">שם להזכרה #{index + 1}</span>
+                  <span className="mx-auto text-center">שם להזכרה #{index + 1}</span>
                   {namesList.length > 1 && (
                     <button type="button" onClick={() => handleRemoveNameRow(item.id)} className="text-rose-400 text-xs">✕</button>
                   )}
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <input type="text" required placeholder="שם פרטי ומשפחה" value={item.name} onChange={e => handleNameChange(item.id, 'name', e.target.value)} className="bg-black/50 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white text-center" />
-                  <input type="text" required placeholder="שם האם (בן/בת)" value={item.motherName} onChange={e => handleNameChange(item.id, 'motherName', e.target.value)} className="bg-black/50 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white text-center" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+                  <input type="text" required placeholder="שם פרטי ומשפחה" value={item.name} onChange={e => handleNameChange(item.id, 'name', e.target.value)} className="w-full bg-black/50 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white text-center" />
+                  <input type="text" required placeholder="שם האם (בן/בת)" value={item.motherName} onChange={e => handleNameChange(item.id, 'motherName', e.target.value)} className="w-full bg-black/50 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white text-center" />
                 </div>
                 <select value={item.requestType} onChange={e => handleNameChange(item.id, 'requestType', e.target.value)} className="w-full bg-slate-900 border border-slate-700 text-xs text-amber-200 rounded-xl p-2 text-center">
                   <option value="ברכה ואיחול">סוג בקשה: ברכה ואיחול</option>
@@ -404,25 +409,25 @@
               </div>
             ))}
 
-            <button type="button" onClick={handleAddNameRow} className="text-xs text-[#E5B54F] border border-amber-500/30 bg-black/40 px-3 py-1 rounded-full">
+            <button type="button" onClick={handleAddNameRow} className="text-xs text-[#E5B54F] border border-amber-500/30 bg-black/40 px-3 py-1 rounded-full mx-auto">
               + הוסף שם נוסף
             </button>
 
             <textarea rows={2} placeholder="בקשת ברכה מפורטת / פ״ן (אופציונלי)" value={personalRequest} onChange={e => setPersonalRequest(e.target.value)} className="w-full bg-black/40 border border-slate-700 rounded-xl p-3 text-sm text-white text-center" />
 
-            <button type="submit" disabled={isSubmitting} className="w-full py-3.5 rounded-xl bg-[#E5B54F] hover:bg-[#d4a33d] text-black font-black text-lg shadow-xl">
+            <button type="submit" disabled={isSubmitting} className="w-full py-4 rounded-xl bg-[#E5B54F] hover:bg-[#d4a33d] text-black font-black text-lg shadow-xl text-center">
               {isSubmitting ? 'שומר ב-Firebase...' : 'שלח שמות לאוהל הקדוש 🍯'}
             </button>
           </form>
 
-          <a href="https://whatsapp.com/channel/0029VayCzKY9mrGXUlgKji0m" target="_blank" rel="noopener noreferrer" className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-xs text-emerald-300 flex items-center justify-between w-full">
+          <a href="https://whatsapp.com/channel/0029VayCzKY9mrGXUlgKji0m" target="_blank" rel="noopener noreferrer" className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-xs text-emerald-300 flex items-center justify-between w-full max-w-sm mx-auto">
             <span>💬 לעקוב אחרי ערוץ להתחבר ל-770 ב-WhatsApp?</span>
             <span className="bg-emerald-500/20 px-2 py-1 rounded-full font-bold">הצטרף ➔</span>
           </a>
 
-          <div className="pt-2 text-center flex flex-col items-center gap-1">
-            <span className="text-xs text-amber-200 font-bold">כתיבה וחתימה טובה לשנה טובה ומתוקה! 🍯</span>
-            <button onClick={() => { window.location.hash = '#admin'; setCurrentView('admin'); }} className="text-[11px] text-slate-500 hover:text-amber-300">
+          <div className="pt-2 text-center flex flex-col items-center gap-1 mx-auto">
+            <span className="text-xs text-amber-200 font-bold mx-auto">כתיבה וחתימה טובה לשנה טובה ומתוקה! 🍯</span>
+            <button onClick={() => { window.location.hash = '#admin'; setCurrentView('admin'); }} className="text-[11px] text-slate-500 hover:text-amber-300 mx-auto">
               🔒 כניסת צוות ניהול (Admin)
             </button>
           </div>
