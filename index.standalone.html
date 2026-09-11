@@ -235,7 +235,7 @@
     }
 
     function App() {
-      const [currentView, setCurrentView] = useState(() => window.location.hash === '#admin' ? 'admin' : 'landing');
+      const [currentView, setCurrentView] = useState(() => (window.location.hash === '#ohel770' || window.location.hash === '#admin') ? 'admin' : 'landing');
       const [namesList, setNamesList] = useState([{ id: '1', name: '', motherName: '', requestType: '' }]);
       const [submittedData, setSubmittedData] = useState(null);
       const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -245,7 +245,7 @@
       const [isClockMinimized, setIsClockMinimized] = useState(false);
 
       useEffect(() => {
-        const handleHash = () => setCurrentView(window.location.hash === '#admin' ? 'admin' : 'landing');
+        const handleHash = () => setCurrentView((window.location.hash === '#ohel770' || window.location.hash === '#admin') ? 'admin' : 'landing');
         window.addEventListener('hashchange', handleHash);
         return () => window.removeEventListener('hashchange', handleHash);
       }, []);
@@ -415,9 +415,6 @@
 
             <div className="pt-2 text-center flex flex-col items-center gap-1 mx-auto">
               <span className="text-xs text-amber-200 font-bold mx-auto">כתיבה וחתימה טובה לשנה טובה ומתוקה! 🍯</span>
-              <button onClick={() => { window.location.hash = '#admin'; setCurrentView('admin'); }} className="text-[11px] text-slate-300 hover:text-amber-300 mx-auto">
-                🔒 כניסת צוות ניהול (Admin)
-              </button>
             </div>
 
             {/* Simple Beautiful Apple Glass Confirmation Modal */}

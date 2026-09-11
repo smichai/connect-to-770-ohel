@@ -16,7 +16,8 @@ import { addNameSubmission } from './firebase';
 
 export default function App() {
   const [currentView, setCurrentView] = useState(() => {
-    return window.location.hash === '#admin' ? 'admin' : 'landing';
+    const hash = window.location.hash;
+    return (hash === '#ohel770' || hash === '#admin') ? 'admin' : 'landing';
   });
 
   const [namesList, setNamesList] = useState([
@@ -31,12 +32,13 @@ export default function App() {
   const [isClockVisible, setIsClockVisible] = useState(true);
   const [isClockMinimized, setIsClockMinimized] = useState(false);
 
-  // Listen to hash changes (e.g. #admin)
+  // Listen to hash changes (e.g. #ohel770)
   useEffect(() => {
     const handleHashChange = () => {
-      if (window.location.hash === '#admin') {
+      const hash = window.location.hash;
+      if (hash === '#ohel770' || hash === '#admin') {
         setCurrentView('admin');
-      } else if (window.location.hash === '' || window.location.hash === '#home') {
+      } else if (hash === '' || hash === '#home') {
         setCurrentView('landing');
       }
     };
@@ -316,23 +318,11 @@ export default function App() {
           </span>
         </a>
 
-        {/* Footer info & Admin link */}
+        {/* Footer info */}
         <div className="pt-2 text-center w-full flex flex-col justify-center items-center gap-2 mx-auto">
           <span className="text-xs sm:text-sm text-amber-200/90 font-bold text-center mx-auto">
             כתיבה וחתימה טובה לשנה טובה ומתוקה! 🍯
           </span>
-          
-          {/* Admin Link Button */}
-          <button 
-            onClick={() => {
-              window.location.hash = '#admin';
-              setCurrentView('admin');
-            }}
-            className="text-[11px] text-slate-300 hover:text-amber-300 transition flex items-center justify-center gap-1 mt-2 mx-auto"
-          >
-            <ShieldCheck size={12} />
-            <span>כניסת צוות ניהול (Admin)</span>
-          </button>
         </div>
 
       </div>
