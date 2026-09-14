@@ -273,7 +273,20 @@
     }
 
     function App() {
-      const [currentView, setCurrentView] = useState(() => (window.location.hash === '#ohel770' || window.location.hash === '#admin') ? 'admin' : 'landing');
+      const isAdminRoute = () => {
+        const hash = (window.location.hash || '').toLowerCase();
+        const path = (window.location.pathname || '').toLowerCase();
+        return (
+          hash === '#ohel770' || 
+          hash === '#admin' || 
+          path.endsWith('/admin') || 
+          path.endsWith('/ohel770') || 
+          path.includes('admin') || 
+          path.includes('ohel770')
+        );
+      };
+
+      const [currentView, setCurrentView] = useState(() => isAdminRoute() ? 'admin' : 'landing');
       const [namesList, setNamesList] = useState([{ id: '1', name: '', motherName: '', requestType: '' }]);
       const [submittedData, setSubmittedData] = useState(null);
       const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -283,9 +296,13 @@
       const [isClockMinimized, setIsClockMinimized] = useState(false);
 
       useEffect(() => {
-        const handleHash = () => setCurrentView((window.location.hash === '#ohel770' || window.location.hash === '#admin') ? 'admin' : 'landing');
-        window.addEventListener('hashchange', handleHash);
-        return () => window.removeEventListener('hashchange', handleHash);
+        const handleRouteChange = () => setCurrentView(isAdminRoute() ? 'admin' : 'landing');
+        window.addEventListener('hashchange', handleRouteChange);
+        window.addEventListener('popstate', handleRouteChange);
+        return () => {
+          window.removeEventListener('hashchange', handleRouteChange);
+          window.removeEventListener('popstate', handleRouteChange);
+        };
       }, []);
 
       useEffect(() => {

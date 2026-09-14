@@ -15,9 +15,21 @@ import AdminDashboard from './components/AdminDashboard';
 import { addNameSubmission } from './firebase';
 
 export default function App() {
+  const isAdminRoute = () => {
+    const hash = (window.location.hash || '').toLowerCase();
+    const path = (window.location.pathname || '').toLowerCase();
+    return (
+      hash === '#ohel770' || 
+      hash === '#admin' || 
+      path.endsWith('/admin') || 
+      path.endsWith('/ohel770') || 
+      path.includes('admin') || 
+      path.includes('ohel770')
+    );
+  };
+
   const [currentView, setCurrentView] = useState(() => {
-    const hash = window.location.hash;
-    return (hash === '#ohel770' || hash === '#admin') ? 'admin' : 'landing';
+    return isAdminRoute() ? 'admin' : 'landing';
   });
 
   const [namesList, setNamesList] = useState([
@@ -32,18 +44,22 @@ export default function App() {
   const [isClockVisible, setIsClockVisible] = useState(true);
   const [isClockMinimized, setIsClockMinimized] = useState(false);
 
-  // Listen to hash changes (e.g. #ohel770)
+  // Listen to hash and popstate changes
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash;
-      if (hash === '#ohel770' || hash === '#admin') {
+    const handleRouteChange = () => {
+      if (isAdminRoute()) {
         setCurrentView('admin');
-      } else if (hash === '' || hash === '#home') {
+      } else {
         setCurrentView('landing');
       }
     };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+
+    window.addEventListener('hashchange', handleRouteChange);
+    window.addEventListener('popstate', handleRouteChange);
+    return () => {
+      window.removeEventListener('hashchange', handleRouteChange);
+      window.removeEventListener('popstate', handleRouteChange);
+    };
   }, []);
 
   // Real live countdown timer to NY 12:00 PM deadline
