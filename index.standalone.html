@@ -108,6 +108,12 @@
         }
       };
 
+      const filteredNames = names.filter(i => {
+        const matchSearch = (i.fullName || '').includes(searchQuery) || (i.motherName || '').includes(searchQuery) || (i.note || '').includes(searchQuery) || (i.requestType || '').includes(searchQuery);
+        const matchStat = statusFilter === 'all' || (statusFilter === 'new' && i.status !== 'processed') || (statusFilter === 'processed' && i.status === 'processed');
+        return matchSearch && matchStat;
+      });
+
       const isAllSelected = filteredNames.length > 0 && filteredNames.every(item => selectedIds.includes(item.id));
 
       const handleSelectAll = () => {
@@ -175,11 +181,7 @@
         printWindow.document.close();
       };
 
-      const filteredNames = names.filter(i => {
-        const matchSearch = (i.fullName || '').includes(searchQuery) || (i.motherName || '').includes(searchQuery) || (i.note || '').includes(searchQuery) || (i.requestType || '').includes(searchQuery);
-        const matchStat = statusFilter === 'all' || (statusFilter === 'new' && i.status !== 'processed') || (statusFilter === 'processed' && i.status === 'processed');
-        return matchSearch && matchStat;
-      });
+
 
       if (!isAuthenticated) {
         return (

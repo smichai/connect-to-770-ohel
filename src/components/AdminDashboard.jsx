@@ -39,6 +39,21 @@ export default function AdminDashboard({ onBackToSite }) {
   // Multi-select Batch Operations
   const [selectedIds, setSelectedIds] = useState([]);
 
+  // Filter Logic
+  const filteredNames = names.filter(item => {
+    const matchesSearch = 
+      (item.fullName || '').includes(searchQuery) || 
+      (item.motherName || '').includes(searchQuery) ||
+      (item.note || '').includes(searchQuery);
+
+    const matchesCategory = selectedCategory === 'all' || item.requestType === selectedCategory;
+    const matchesStatus = statusFilter === 'all' || 
+      (statusFilter === 'new' && item.status !== 'processed') ||
+      (statusFilter === 'processed' && item.status === 'processed');
+
+    return matchesSearch && matchesCategory && matchesStatus;
+  });
+
   // Firebase Realtime Listener
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -222,20 +237,7 @@ export default function AdminDashboard({ onBackToSite }) {
     printWindow.document.close();
   };
 
-  // Filter Logic
-  const filteredNames = names.filter(item => {
-    const matchesSearch = 
-      (item.fullName || '').includes(searchQuery) || 
-      (item.motherName || '').includes(searchQuery) ||
-      (item.note || '').includes(searchQuery);
 
-    const matchesCategory = selectedCategory === 'all' || item.requestType === selectedCategory;
-    const matchesStatus = statusFilter === 'all' || 
-      (statusFilter === 'new' && item.status !== 'processed') ||
-      (statusFilter === 'processed' && item.status === 'processed');
-
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
 
   // Calculate statistics
   const totalCount = names.length;
