@@ -293,7 +293,7 @@
       const [submittedData, setSubmittedData] = useState(null);
       const [showSuccessModal, setShowSuccessModal] = useState(false);
       const [isSubmitting, setIsSubmitting] = useState(false);
-      const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+      const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, isPassed: false });
       const [isClockVisible, setIsClockVisible] = useState(true);
       const [isClockMinimized, setIsClockMinimized] = useState(false);
 
@@ -308,19 +308,33 @@
       }, []);
 
       useEffect(() => {
+        const erevDates = [
+          new Date("2025-09-22T12:00:00-04:00"),
+          new Date("2026-09-11T12:00:00-04:00"),
+          new Date("2027-09-29T12:00:00-04:00"),
+          new Date("2028-09-20T12:00:00-04:00"),
+          new Date("2029-09-09T12:00:00-04:00"),
+          new Date("2030-09-27T12:00:00-04:00")
+        ];
+
         const updateTimer = () => {
-          const nyDateString = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
-          const nyCurrent = new Date(nyDateString);
-          let target = new Date(nyCurrent);
-          target.setHours(12, 0, 0, 0);
-          if (nyCurrent > target) target.setDate(target.getDate() + 1);
-          const diff = target.getTime() - nyCurrent.getTime();
+          const now = new Date();
+          let target = erevDates.find(d => d > now);
+          if (!target) {
+            target = erevDates[erevDates.length - 1];
+          }
+
+          const diff = target.getTime() - now.getTime();
           if (diff > 0) {
             setTimeLeft({
-              hours: Math.floor(diff / (1000 * 60 * 60)),
+              days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+              hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
               minutes: Math.floor((diff / (1000 * 60)) % 60),
-              seconds: Math.floor((diff / 1000) % 60)
+              seconds: Math.floor((diff / 1000) % 60),
+              isPassed: false
             });
+          } else {
+            setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isPassed: true });
           }
         };
         updateTimer();
@@ -526,7 +540,7 @@
               <div className="w-full flex items-center justify-between gap-1 mb-2 px-0.5">
                 <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-amber-200/90 font-semibold drop-shadow-md text-right">
                   <span className="w-2 h-2 rounded-full bg-[#E5B54F] animate-pulse" />
-                  <span>נותרו עד 12:00 ניו יורק:</span>
+                  <span>{timeLeft.isPassed ? 'הרשמת ערב רה"ש הסתיימה' : 'נותרו לערב ראש השנה (12:00 ניו יורק):'}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <button type="button" onClick={() => setIsClockMinimized(true)} className="text-slate-300 hover:text-amber-300 p-1 rounded-lg hover:bg-white/10 transition-colors" title="קפל לצד">➔</button>
@@ -534,7 +548,15 @@
                 </div>
               </div>
               
-              <div className="flex items-center gap-2 sm:gap-2.5 justify-center w-full pt-0.5" style={{ direction: 'ltr' }}>
+              <div className="flex items-center gap-1.5 sm:gap-2 justify-center w-full pt-0.5" style={{ direction: 'ltr' }}>
+                <div className="flex flex-col items-center gap-0.5">
+                  <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
+                    <div className="w-6 h-8 bg-white/[0.08] backdrop-blur-md text-white font-bold text-sm rounded-lg border border-white/20 shadow flex items-center justify-center">{Math.floor(timeLeft.days / 10)}</div>
+                    <div className="w-6 h-8 bg-white/[0.08] backdrop-blur-md text-white font-bold text-sm rounded-lg border border-white/20 shadow flex items-center justify-center">{timeLeft.days % 10}</div>
+                  </div>
+                  <span className="text-[10px] text-amber-200 font-bold">ימים</span>
+                </div>
+                <span className="text-[#E5B54F] font-bold text-sm pb-3 animate-pulse">:</span>
                 <div className="flex flex-col items-center gap-0.5">
                   <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
                     <div className="w-6 h-8 bg-white/[0.08] backdrop-blur-md text-white font-bold text-sm rounded-lg border border-white/20 shadow flex items-center justify-center">{Math.floor(timeLeft.hours / 10)}</div>
@@ -573,7 +595,7 @@
               >
                 <span>⏱️</span>
                 <span style={{ direction: 'ltr' }}>
-                  {String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
+                  {timeLeft.days > 0 ? `${timeLeft.days}d ` : ''}{String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
                 </span>
                 <span>⬅️</span>
               </button>

@@ -62,26 +62,35 @@ export default function App() {
     };
   }, []);
 
-  // Real live countdown timer to NY 12:00 PM deadline
-  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+  // Real live countdown timer to Erev Rosh Hashanah 12:00 PM NY deadline
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, isPassed: false });
 
   useEffect(() => {
-    const updateTimer = () => {
-      const nyDateString = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
-      const nyCurrent = new Date(nyDateString);
-      let target = new Date(nyCurrent);
-      target.setHours(12, 0, 0, 0);
+    const erevDates = [
+      new Date("2025-09-22T12:00:00-04:00"),
+      new Date("2026-09-11T12:00:00-04:00"),
+      new Date("2027-09-29T12:00:00-04:00"),
+      new Date("2028-09-20T12:00:00-04:00"),
+      new Date("2029-09-09T12:00:00-04:00"),
+      new Date("2030-09-27T12:00:00-04:00")
+    ];
 
-      if (nyCurrent > target) {
-        target.setDate(target.getDate() + 1);
+    const updateTimer = () => {
+      const now = new Date();
+      let target = erevDates.find(d => d > now);
+      if (!target) {
+        target = erevDates[erevDates.length - 1];
       }
 
-      const diff = target.getTime() - nyCurrent.getTime();
+      const diff = target.getTime() - now.getTime();
       if (diff > 0) {
-        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const minutes = Math.floor((diff / (1000 * 60)) % 60);
         const seconds = Math.floor((diff / 1000) % 60);
-        setTimeLeft({ hours, minutes, seconds });
+        setTimeLeft({ days, hours, minutes, seconds, isPassed: false });
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isPassed: true });
       }
     };
     updateTimer();
@@ -368,7 +377,7 @@ export default function App() {
           <div className="w-full flex items-center justify-between gap-1 mb-2 px-0.5">
             <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-amber-200/90 font-semibold drop-shadow-md text-right">
               <Clock size={13} className="text-[#E5B54F]" />
-              <span>נותרו עד 12:00 ניו יורק:</span>
+              <span>{timeLeft.isPassed ? 'הרשמת ערב רה"ש הסתיימה' : 'נותרו לערב ראש השנה (12:00 ניו יורק):'}</span>
             </div>
             <div className="flex items-center gap-1">
               <button
@@ -390,10 +399,27 @@ export default function App() {
             </div>
           </div>
           
-          {/* Ordered Units in LTR (Left: שעות | Middle: דקות | Right: שניות) */}
-          <div className="flex items-center gap-2 sm:gap-2.5 justify-center w-full pt-0.5" style={{ direction: 'ltr' }}>
+          {/* Ordered Units in LTR (Left: ימים | שעות | דקות | Right: שניות) */}
+          <div className="flex items-center gap-1.5 sm:gap-2 justify-center w-full pt-0.5" style={{ direction: 'ltr' }}>
             
-            {/* שעות - Left */}
+            {/* ימים - Left */}
+            <div className="flex flex-col items-center gap-0.5">
+              <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
+                <div className="relative w-6 h-8 bg-white/[0.12] text-white font-sans font-bold text-sm rounded-lg border border-white/20 shadow-md flex items-center justify-center overflow-hidden">
+                  <div className="absolute inset-x-0 top-1/2 h-[1px] bg-white/10 z-10 border-b border-white/10" />
+                  <span className="relative z-0 drop-shadow-sm">{Math.floor(timeLeft.days / 10)}</span>
+                </div>
+                <div className="relative w-6 h-8 bg-white/[0.12] text-white font-sans font-bold text-sm rounded-lg border border-white/20 shadow-md flex items-center justify-center overflow-hidden">
+                  <div className="absolute inset-x-0 top-1/2 h-[1px] bg-white/10 z-10 border-b border-white/10" />
+                  <span className="relative z-0 drop-shadow-sm">{timeLeft.days % 10}</span>
+                </div>
+              </div>
+              <span className="text-[10px] text-amber-200/90 font-bold">ימים</span>
+            </div>
+
+            <span className="text-[#E5B54F] font-bold text-sm pb-3 animate-pulse">:</span>
+
+            {/* שעות */}
             <div className="flex flex-col items-center gap-0.5">
               <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
                 <div className="relative w-6 h-8 bg-white/[0.12] text-white font-sans font-bold text-sm rounded-lg border border-white/20 shadow-md flex items-center justify-center overflow-hidden">
@@ -410,7 +436,7 @@ export default function App() {
 
             <span className="text-[#E5B54F] font-bold text-sm pb-3 animate-pulse">:</span>
 
-            {/* דקות - Middle */}
+            {/* דקות */}
             <div className="flex flex-col items-center gap-0.5">
               <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
                 <div className="relative w-6 h-8 bg-white/[0.12] text-white font-sans font-bold text-sm rounded-lg border border-white/20 shadow-md flex items-center justify-center overflow-hidden">
@@ -427,7 +453,7 @@ export default function App() {
 
             <span className="text-[#E5B54F] font-bold text-sm pb-3 animate-pulse">:</span>
 
-            {/* שניות - Right */}
+            {/* שניות */}
             <div className="flex flex-col items-center gap-0.5">
               <div className="flex gap-0.5" style={{ direction: 'ltr' }}>
                 <div className="relative w-6 h-8 bg-white/[0.12] text-white font-sans font-bold text-sm rounded-lg border border-white/20 shadow-md flex items-center justify-center overflow-hidden">
@@ -470,7 +496,7 @@ export default function App() {
             >
               <Clock size={14} className="text-[#E5B54F] group-hover:rotate-12 transition-transform" />
               <span style={{ direction: 'ltr' }}>
-                {String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
+                {timeLeft.days > 0 ? `${timeLeft.days}d ` : ''}{String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
               </span>
               <ChevronLeft size={14} className="text-[#E5B54F]" />
             </button>
