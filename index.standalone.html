@@ -67,6 +67,7 @@
       const [searchQuery, setSearchQuery] = useState('');
       const [selectedCategory, setSelectedCategory] = useState('all');
       const [statusFilter, setStatusFilter] = useState('all');
+      const [selectedIds, setSelectedIds] = useState([]);
 
       useEffect(() => {
         if (!isAuthenticated) return;
@@ -103,6 +104,31 @@
       const handleDelete = async (id, name) => {
         if (window.confirm(`האם למחוק את "${name}"?`)) {
           await db.collection(NAMES_COLLECTION).doc(id).delete();
+          setSelectedIds(prev => prev.filter(i => i !== id));
+        }
+      };
+
+      const isAllSelected = filteredNames.length > 0 && filteredNames.every(item => selectedIds.includes(item.id));
+
+      const handleSelectAll = () => {
+        if (isAllSelected) {
+          setSelectedIds([]);
+        } else {
+          setSelectedIds(filteredNames.map(item => item.id));
+        }
+      };
+
+      const handleSelectItem = (id) => {
+        setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+      };
+
+      const handleBulkDelete = async () => {
+        if (selectedIds.length === 0) return;
+        if (window.confirm(`האם למחוק ${selectedIds.length} שמות מסומנים לפח?`)) {
+          for (const id of selectedIds) {
+            await db.collection(NAMES_COLLECTION).doc(id).delete();
+          }
+          setSelectedIds([]);
         }
       };
 
@@ -199,10 +225,21 @@
             />
           </div>
 
+          {selectedIds.length > 0 && (
+            <div className="bg-rose-950/60 border border-rose-800/70 rounded-xl p-3 flex justify-between items-center text-xs">
+              <span className="text-rose-200 font-bold">נבחרו {selectedIds.length} שמות</span>
+              <div className="flex gap-2">
+                <button onClick={handleBulkDelete} className="bg-red-600 hover:bg-red-500 text-white font-bold px-3 py-1.5 rounded-lg">זרוק לפח 🗑️ ({selectedIds.length})</button>
+                <button onClick={() => setSelectedIds([])} className="bg-slate-800 text-slate-300 px-2 py-1.5 rounded-lg">ביטול</button>
+              </div>
+            </div>
+          )}
+
           <div className="overflow-x-auto bg-slate-950/60 rounded-xl border border-slate-800">
             <table className="w-full text-xs text-right">
               <thead>
                 <tr className="bg-slate-900 border-b border-slate-800 text-amber-200">
+                  <th className="p-3 w-8 text-center"><input type="checkbox" checked={isAllSelected} onChange={handleSelectAll} className="w-4 h-4 accent-[#E5B54F]" /></th>
                   <th className="p-3">#</th>
                   <th className="p-3">שם מלא</th>
                   <th className="p-3">שם האם</th>
@@ -214,7 +251,8 @@
               </thead>
               <tbody>
                 {filteredNames.map((n, idx) => (
-                  <tr key={n.id} className="border-b border-slate-800/50 hover:bg-slate-800/30">
+                  <tr key={n.id} className={`border-b border-slate-800/50 hover:bg-slate-800/30 ${selectedIds.includes(n.id) ? 'bg-[#E5B54F]/10' : ''}`}>
+                    <td className="p-3 text-center"><input type="checkbox" checked={selectedIds.includes(n.id)} onChange={() => handleSelectItem(n.id)} className="w-4 h-4 accent-[#E5B54F]" /></td>
                     <td className="p-3 text-slate-500">{idx + 1}</td>
                     <td className="p-3 font-bold text-[#E5B54F]">{n.fullName}</td>
                     <td className="p-3 text-amber-200">{n.motherName}</td>

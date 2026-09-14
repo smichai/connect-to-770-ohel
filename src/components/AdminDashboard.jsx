@@ -36,6 +36,9 @@ export default function AdminDashboard({ onBackToSite }) {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  // Multi-select Batch Operations
+  const [selectedIds, setSelectedIds] = useState([]);
+
   // Firebase Realtime Listener
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -87,7 +90,47 @@ export default function AdminDashboard({ onBackToSite }) {
   const handleDelete = async (id, fullName) => {
     if (window.confirm(`האם למחוק את השם "${fullName}" מהרשימה?`)) {
       await deleteSubmission(id);
+      setSelectedIds(prev => prev.filter(i => i !== id));
     }
+  };
+
+  // Batch Select & Delete Operations
+  const isAllSelected = filteredNames.length > 0 && filteredNames.every(item => selectedIds.includes(item.id));
+
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredNames.map(item => item.id));
+    }
+  };
+
+  const handleSelectItem = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return;
+    if (window.confirm(`האם למחוק ${selectedIds.length} שמות שנבחרו מהרשימה?`)) {
+      setLoading(true);
+      for (const id of selectedIds) {
+        await deleteSubmission(id);
+      }
+      setSelectedIds([]);
+      setLoading(false);
+    }
+  };
+
+  const handleBulkToggleStatus = async (targetStatus) => {
+    if (selectedIds.length === 0) return;
+    setLoading(true);
+    for (const id of selectedIds) {
+      await updateSubmissionStatus(id, targetStatus);
+    }
+    setSelectedIds([]);
+    setLoading(false);
   };
 
   // CSV Export
@@ -402,6 +445,45 @@ export default function AdminDashboard({ onBackToSite }) {
 
         </div>
 
+        {/* Bulk Actions Banner (appears when items are selected) */}
+        {selectedIds.length > 0 && (
+          <div className="bg-rose-950/60 border border-rose-800/70 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+            <div className="flex items-center gap-2.5 text-rose-200 text-xs sm:text-sm font-semibold">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-400 animate-ping" />
+              <span>נבחרו {selectedIds.length} שמות מהרשימה</span>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => handleBulkToggleStatus('processed')}
+                className="bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-700/60 text-emerald-300 text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <CheckCircle size={14} />
+                <span>סמן כנקראו</span>
+              </button>
+              <button
+                onClick={() => handleBulkToggleStatus('new')}
+                className="bg-blue-950/70 hover:bg-blue-900 border border-blue-700/60 text-blue-300 text-xs font-semibold px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <Clock size={14} />
+                <span>סמן כחדשים</span>
+              </button>
+              <button
+                onClick={handleBulkDelete}
+                className="bg-gradient-to-r from-red-600 to-rose-700 hover:brightness-110 text-white text-xs font-bold px-4 py-1.5 rounded-lg shadow-md transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <Trash2 size={15} />
+                <span>מחק מסומנים לפח 🗑️ ({selectedIds.length})</span>
+              </button>
+              <button
+                onClick={() => setSelectedIds([])}
+                className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-2.5 py-1.5 rounded-lg transition cursor-pointer"
+              >
+                ביטול בחירה
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Data Table Container */}
         <div className="bg-[#111116] border border-[#E5B54F]/20 rounded-2xl overflow-hidden shadow-2xl">
           {loading ? (
@@ -420,6 +502,15 @@ export default function AdminDashboard({ onBackToSite }) {
               <table className="w-full text-right text-xs sm:text-sm">
                 <thead>
                   <tr className="bg-slate-900/80 border-b border-slate-800 text-amber-200/90 text-xs font-semibold">
+                    <th className="py-3.5 px-3 w-10 text-center">
+                      <input 
+                        type="checkbox"
+                        checked={isAllSelected}
+                        onChange={handleSelectAll}
+                        className="w-4 h-4 accent-[#E5B54F] rounded cursor-pointer"
+                        title="סמן / בטל הכל"
+                      />
+                    </th>
                     <th className="py-3.5 px-4 w-12">#</th>
                     <th className="py-3.5 px-4">שם מלא</th>
                     <th className="py-3.5 px-4">שם האם</th>
@@ -433,11 +524,20 @@ export default function AdminDashboard({ onBackToSite }) {
                 <tbody className="divide-y divide-slate-800/60">
                   {filteredNames.map((item, index) => {
                     const isProcessed = item.status === 'processed';
+                    const isSelected = selectedIds.includes(item.id);
                     return (
                       <tr 
                         key={item.id} 
-                        className={`hover:bg-slate-800/30 transition ${isProcessed ? 'opacity-60 bg-slate-950/40' : ''}`}
+                        className={`hover:bg-slate-800/30 transition ${isSelected ? 'bg-[#E5B54F]/10 border-l-2 border-l-[#E5B54F]' : ''} ${isProcessed ? 'opacity-60 bg-slate-950/40' : ''}`}
                       >
+                        <td className="py-3.5 px-3 text-center">
+                          <input 
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleSelectItem(item.id)}
+                            className="w-4 h-4 accent-[#E5B54F] rounded cursor-pointer"
+                          />
+                        </td>
                         <td className="py-3.5 px-4 text-slate-500 font-mono">{index + 1}</td>
                         <td className="py-3.5 px-4 font-bold text-white">{item.fullName}</td>
                         <td className="py-3.5 px-4 text-amber-200/90">{item.motherName ? `בת/בן ${item.motherName}` : '-'}</td>
